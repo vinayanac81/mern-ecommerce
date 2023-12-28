@@ -22,7 +22,7 @@ const LeftLayout = ({ active }) => {
       setactiveState({ ...active, products: true });
     } else if (active === "users") {
       setactiveState({ ...active, users: true });
-    } else if (active === "category") {
+    } else if (active === "latest5G") {
       setactiveState({ ...active, category: true });
     } else if (active === "brands") {
       setactiveState({ ...active, brands: true });
@@ -156,27 +156,6 @@ const LeftLayout = ({ active }) => {
             </li>
             <li>
               <a
-                href="/admin/category"
-                className="relative flex flex-row items-center h-11 focus:outline-none hover:bg-blue-800 dark:hover:bg-gray-600 text-white-600 hover:text-white-800 border-l-4 border-transparent hover:border-blue-500 dark:hover:border-gray-800 pr-6"
-              >
-                <span
-                  className={`inline-flex justify-center ${
-                    activeState.category && "text-blue-600"
-                  } text-2xl items-center ml-4`}
-                >
-                  <MdOutlineCategory />
-                </span>
-                <span
-                  className={`ml-2 text-sm tracking-wide truncate ${
-                    activeState.category && " text-blue-600"
-                  }`}
-                >
-                  Category
-                </span>
-              </a>
-            </li>
-            <li>
-              <a
                 href="/admin/brand"
                 className="relative flex flex-row items-center h-11 focus:outline-none hover:bg-blue-800 dark:hover:bg-gray-600 text-white-600 hover:text-white-800 border-l-4 border-transparent hover:border-blue-500 dark:hover:border-gray-800 pr-6"
               >
@@ -196,19 +175,27 @@ const LeftLayout = ({ active }) => {
                 </span>
               </a>
             </li>
-            {/* <li>
+            <li>
               <a
-                href="#"
+                href="/admin/category"
                 className="relative flex flex-row items-center h-11 focus:outline-none hover:bg-blue-800 dark:hover:bg-gray-600 text-white-600 hover:text-white-800 border-l-4 border-transparent hover:border-blue-500 dark:hover:border-gray-800 pr-6"
               >
-                <span className="inline-flex text-2xl justify-center items-center ml-4">
-                  <GrGallery />
+                <span
+                  className={`inline-flex justify-center ${
+                    activeState.category && "text-blue-600"
+                  } text-2xl items-center ml-4`}
+                >
+                  <MdOutlineCategory />
                 </span>
-                <span className="ml-2 text-sm tracking-wide truncate">
-                  Banner
+                <span
+                  className={`ml-2 text-sm tracking-wide truncate ${
+                    activeState.category && " text-blue-600"
+                  }`}
+                >
+                  Latest 5G Mobiles
                 </span>
               </a>
-            </li> */}
+            </li>
             <li>
               <a
                 href="/admin/orders"

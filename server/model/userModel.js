@@ -10,6 +10,9 @@ const userSchema = mongoose.Schema({
   email: {
     type: String,
   },
+  gender: {
+    type: String,
+  },
   referral_code: {
     type: String,
   },

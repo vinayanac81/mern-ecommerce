@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import LeftLayout from "../../Components/Admin/LeftLayout";
 import { Button, Card, Checkbox, Label, TextInput } from "flowbite-react";
 import AdminNav from "../../Components/Admin/AdminNav";
-import AxiosInstance from "../../Constants";
+import AxiosInstance, { BaseUrl } from "../../Constants";
 
 import { Modal } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
@@ -11,71 +11,24 @@ import toast from "react-hot-toast";
 import Header from "../../Components/Admin/Header";
 const AdminCategory = () => {
   const navigate = useNavigate();
-  const [category, setcategory] = useState("");
-  const [categoryData, setcategoryData] = useState([]);
   const [loading, setloading] = useState(true);
-  const [editPopup, seteditPopup] = useState(false);
+  const [showAddLatest5G, setShowAddLatest5G] = useState(false);
   const [deletePopup, setdeletePopup] = useState(false);
   const [categoryId, setcategoryId] = useState("");
-  const getCategory = async () => {
-    try {
-      setloading(true)
-      const { data } = await AxiosInstance.get("/admin/get-category");
-      setloading(false)
-      console.log(data);
-      if (data.success) {
-        setcategoryData(data.category);
-      } else if (data.noToken || data.tokenExp) {
-        toast.error(data.message);
-        localStorage.removeItem("admin");
-        localStorage.removeItem("admin-token");
-        navigate("/admin");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const [latestMobiles, setLatestMobiles] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   useEffect(() => {
-    getCategory();
+    getLatest5GMobiles();
   }, []);
-  const updateCategory = async (e) => {
+  const getLatest5GMobiles = async () => {
     try {
-      e.preventDefault();
-      console.log(category);
-      const { data } = await AxiosInstance.post(
-        "/admin/add-category",
-        {},
-        { params: { category } }
-      );
+      setloading(true);
+      const { data } = await AxiosInstance.get("/admin/latest5GMobiles");
+      setloading(false);
       console.log(data);
       if (data.success) {
-        toast.success(data.message);
-        window.location.reload();
-      } else if (data.noToken || data.tokenExp) {
-        toast.error(data.message);
-        localStorage.removeItem("admin");
-        localStorage.removeItem("admin-token");
-        navigate("/admin");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const handleEdit = async (id) => {
-    try {
-      const { data } = await AxiosInstance.get("/admin/get-single-category", {
-        params: { id },
-      });
-      if (data.success) {
-        console.log(data);
-        setcategory(data.category.category_name.toLowerCase());
-        setcategoryId(data.category._id);
-        seteditPopup(true);
-      } else if (data.noToken || data.tokenExp) {
-        toast.error(data.message);
-        localStorage.removeItem("admin");
-        localStorage.removeItem("admin-token");
-        navigate("/admin");
+        setLatestMobiles(data?.latest);
+        setAllProducts(data?.allProducts);
       }
     } catch (error) {
       console.log(error);
@@ -84,23 +37,6 @@ const AdminCategory = () => {
   const handleDelete = (id) => {
     setcategoryId(id);
     setdeletePopup(true);
-  };
-  const modifyCategory = async (e) => {
-    e.preventDefault();
-    const { data } = await AxiosInstance.post(
-      "/admin/edit-category",
-      {},
-      { params: { categoryId, category } }
-    );
-    if (data.success) {
-      toast.success(data.message);
-      window.location.reload();
-    } else if (data.noToken || data.tokenExp) {
-      toast.error(data.message);
-      localStorage.removeItem("admin");
-      localStorage.removeItem("admin-token");
-      navigate("/admin");
-    }
   };
   const confirmDelete = async (req, res) => {
     try {
@@ -122,12 +58,26 @@ const AdminCategory = () => {
       console.log(error);
     }
   };
+  const addToLatest = async (id) => {
+    try {
+      const { data } = await AxiosInstance.post("/admin/addToLastestMobiles", {
+        id,
+      });
+      if(data?.success){
+        setShowAddLatest5G(false)
+        getLatest5GMobiles()
+        toast.success("Added successfully")
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div>
-      <div x-data="setup()" class="{ 'dark': isDark }">
+      <div>
         <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-white dark:bg-gray-700 text-black dark:text-white">
           <Header />
-          <LeftLayout active="category" />
+          <LeftLayout active="latest5G" />
           {loading && (
             <>
               <div className="w-full  h-screen flex justify-center items-center">
@@ -154,70 +104,99 @@ const AdminCategory = () => {
             </>
           )}
           <div className="h-full flex flex-col ml-14 mt-14 mb-10 md:ml-64">
-            <div className="p-8">
-              <Card className="max-w-sm">
-                <form className="flex flex-col gap-4">
-                  <div>
-                    <div className="mb-2 block">
-                      <Label htmlFor="name" value="CATEGORY NAME" />
-                    </div>
-                    <TextInput
-                      onChange={(e) => setcategory(e.target.value)}
-                      id="name"
-                      type="text"
-                      required
-                    />
-                  </div>
-                  <Button onClick={updateCategory} color="green" type="submit">
-                    ADD
-                  </Button>
-                </form>
+            <div className="py-4 px-8">
+              <Card className="max-w-sm ml-auto">
+                <Button
+                  onClick={() => setShowAddLatest5G(true)}
+                  color="green"
+                  type="submit"
+                >
+                  ADD LATEST 5G MOBILES
+                </Button>
               </Card>
             </div>
-            <div className="p-8">
+            <div className="px-8">
               <div className="w-full overflow-hidden rounded-lg shadow-xs">
                 <div className="w-full overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
                         <th className="px-4 py-3">Sl No</th>
-                        <th className="px-4 py-3">Category Name</th>
+                        <th className="px-4 py-3">Mobile Name</th>
+                        <th className="px-4 py-3">Image</th>
                         <th className="px-4 text-center py-3">Option</th>
                       </tr>
                     </thead>
                     <div className="">
                       <Modal
-                        show={editPopup}
-                        size="md"
-                        onClose={() => seteditPopup(false)}
+                        show={showAddLatest5G}
+                        size="4xl"
+                        onClose={() => setShowAddLatest5G(false)}
                         popup
                       >
                         <Modal.Header />
                         <Modal.Body>
-                          <form className="flex flex-col gap-4">
-                            <div>
-                              <div className="mb-2 block">
-                                <Label
-                                  htmlFor="name"
-                                  value="EDIT CATEGORY NAME"
-                                />
+                          <div className="px-8 mb-4">
+                            <div className="w-full overflow-hidden rounded-lg shadow-xs">
+                              <div className="w-full overflow-x-auto">
+                                <table className="w-full">
+                                  <thead>
+                                    <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+                                      <th className="px-4 py-3">Sl No</th>
+                                      <th className="px-4 py-3">Mobile Name</th>
+                                      <th className="px-4 py-3">Image</th>
+                                      <th className="px-4 text-center py-3">
+                                        Option
+                                      </th>
+                                    </tr>
+                                  </thead>
+
+                                  <tbody className="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+                                    {allProducts.map((product, id) => {
+                                        return (
+                                          <>
+                                            <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
+                                              <td className="px-4  py-3">
+                                                <div className="flex items-center text-sm">
+                                                  <div>
+                                                    <p className="font-semibold">
+                                                      {id + 1}
+                                                    </p>
+                                                  </div>
+                                                </div>
+                                              </td>
+                                              <td className="px-4 py-3 text-sm">
+                                                {product?.product_name}
+                                              </td>
+                                              <td className="px-4 py-3 text-sm">
+                                                <div className="w-20 h-20 py-2">
+                                                  <img
+                                                    src={`${BaseUrl}/images/${product?.image}`}
+                                                    className="w-full h-full"
+                                                    alt=""
+                                                  />
+                                                </div>
+                                              </td>
+                                              <td className="px-4 py-3 justify-center flex gap-4 text-xs">
+                                                <Button
+                                                  onClick={() =>
+                                                    addToLatest(product?._id)
+                                                  }
+                                                  color="blue"
+                                                  type="submit"
+                                                >
+                                                  Add
+                                                </Button>
+                                              </td>
+                                            </tr>
+                                          </>
+                                        )
+                                    })}
+                                  </tbody>
+                                </table>
                               </div>
-                              <TextInput
-                                onChange={(e) => setcategory(e.target.value)}
-                                id="name"
-                                type="text"
-                                value={category}
-                                required
-                              />
                             </div>
-                            <Button
-                              onClick={modifyCategory}
-                              color="green"
-                              type="submit"
-                            >
-                              SAVE
-                            </Button>
-                          </form>
+                          </div>
                         </Modal.Body>
                       </Modal>
                     </div>
@@ -251,40 +230,58 @@ const AdminCategory = () => {
                       </Modal>
                     </div>
                     <tbody className="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
-                      {categoryData.map((category, id) => {
-                        return (
-                          <>
-                            <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
-                              <td className="px-4  py-3">
-                                <div className="flex items-center text-sm">
-                                  <div>
-                                    <p className="font-semibold">{id + 1}</p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-4 py-3 text-sm">
-                                {category?.category_name}
-                              </td>
-                              <td className="px-4 py-3 justify-center flex gap-4 text-xs">
-                                <Button
-                                  onClick={() => handleEdit(category?._id)}
-                                  color="blue"
-                                  type="submit"
-                                >
-                                  Edit
-                                </Button>
-                                <Button
-                                  onClick={() => handleDelete(category?._id)}
-                                  color="red"
-                                  type="submit"
-                                >
-                                  Delete
-                                </Button>
-                              </td>
-                            </tr>
-                          </>
-                        );
-                      })}
+                      {latestMobiles?.length === 0 ? (
+                        <>
+                          <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
+                            <td className="px-4  py-3"></td>
+                            <td className="px-4 text-center py-3 text-sm">
+                              No Latest Mobiles
+                            </td>
+                            <td className="px-4 py-3 justify-center flex gap-4 text-xs"></td>
+                          </tr>
+                        </>
+                      ) : (
+                        <>
+                          {latestMobiles.map((mobile, id) => {
+                            return (
+                              <>
+                                <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
+                                  <td className="px-4  py-3">
+                                    <div className="flex items-center text-sm">
+                                      <div>
+                                        <p className="font-semibold">
+                                          {id + 1}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3 text-sm">
+                                    {mobile?.product?.product_name}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm">
+                                    <div className="w-20 h-20 py-2">
+                                      <img
+                                        src={`${BaseUrl}/images/${mobile?.product?.image}`}
+                                        className="w-full h-full"
+                                        alt=""
+                                      />
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3 justify-center flex gap-4 text-xs">
+                                    <Button
+                                      onClick={() => handleDelete(mobile?._id)}
+                                      color="red"
+                                      type="submit"
+                                    >
+                                      Remove
+                                    </Button>
+                                  </td>
+                                </tr>
+                              </>
+                            );
+                          })}
+                        </>
+                      )}
                     </tbody>
                   </table>
                 </div>

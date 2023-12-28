@@ -1,29 +1,20 @@
 import mongoose from "mongoose";
 
 const addressSchema = mongoose.Schema({
-  first_name: {
-    type: String,
-  },
-  last_name: {
+  name: {
     type: String,
   },
   user_id: {
     type: mongoose.Types.ObjectId
   },
-  email: {
+  mobile_number: {
     type: String,
   },
-  phone_number: {
-    type: Number,
-  },
-  // second_phone_number: {
-  //   type: Number,
-  // },
   address: {
     type: String,
   },
   pincode: {
-    type: Number,
+    type: String,
   },
   district: {
     type: String,

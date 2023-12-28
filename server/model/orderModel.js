@@ -13,7 +13,7 @@ const orderSchema = mongoose.Schema({
   discount_price: {
     type: Number,
   },
-  after_discount: {
+  after_discount_final_amount: {
     type: Number,
   },
   total_price: {

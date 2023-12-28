@@ -27,7 +27,8 @@ export default {
     },
   },
   plugins: [
-    require("tw-elements-react/dist/plugin.cjs")
+    require("tw-elements-react/dist/plugin.cjs"),
+    require('@tailwindcss/forms')
     // require("flowbite/plugin")
   ],
 };

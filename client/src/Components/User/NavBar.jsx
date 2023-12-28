@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BsFillCartFill } from "react-icons/bs";
-import { Avatar, Dropdown, Button, Navbar } from "flowbite-react";
+import { Avatar, Dropdown, Button, Navbar, NavbarBrand } from "flowbite-react";
 import { useDispatch, useSelector } from "react-redux";
 import { HiOutlineLogin } from "react-icons/hi";
 import { googleLogout } from "@react-oauth/google";
@@ -17,7 +17,6 @@ const NavBar = ({ name }) => {
   const [handleActive, sethandleActive] = useState({
     home: false,
     shop: false,
-    category: false,
     brand: false,
   });
   const { userDetails, userCart } = useSelector((state) => state.user);
@@ -62,28 +61,28 @@ const NavBar = ({ name }) => {
     navigate(`/filter/category/${name}`);
   };
   return (
-    <div className="">
+    <div className="bg-white">
       <Navbar fluid>
-        <Navbar.Brand href="/">
-          <span className="self-center pl- md:pl-24 whitespace-nowrap text-md md:text-xl font-semibold dark:text-white">
-            PHONE HOUSE
+        <Navbar.Brand className="no-underline" href="/">
+          <span className="self-center text-blue-600 hover:text-blue-800 pl- md:pl-10 whitespace-nowrap text-md md:text-xl font-extrabold ">
+            5G WORLD
           </span>
         </Navbar.Brand>
         <div className="flex md:gap-5 md:px-6 md:order-2">
-          <div className="flex relative items-center text-gray-500 mr-3 text-2xl md:text-4xl">
-            <Link to={"/cart"}>
+          <div className="flex relative items-center  mr-3 text-2xl md:text-4xl">
+            <Link className="text-blue-600 hover:text-blue-800" to={"/cart"}>
               <BsFillCartFill />
               <span className="md:w-4 w-3.5 flex justify-center rounded-full text-xs  text-white left-1.5 md:left-3  top-3 absolute h-4">
                 {userCart}
               </span>
             </Link>
           </div>
-
           {userDetails?.email ? (
             <>
-              {!userDetails?.image || userDetails.image==="" ? (
+              {!userDetails?.image || userDetails.image === "" ? (
                 <>
                   <Dropdown
+                    className="bg-gray-600 hover:bg-gray-800"
                     arrowIcon={false}
                     inline
                     label={
@@ -94,7 +93,7 @@ const NavBar = ({ name }) => {
                     }
                   >
                     <Dropdown.Header>
-                      <span className="block text-sm">
+                      <span className="block  text-sm">
                         {userDetails.first_name} {userDetails.last_name}
                       </span>
                       <span className="block truncate text-sm font-medium">
@@ -115,12 +114,13 @@ const NavBar = ({ name }) => {
                 </>
               ) : (
                 <>
-                    <Dropdown
+                  <Dropdown
+                    className="bg-gray-600 hover:bg-gray-800"
                     arrowIcon={false}
                     inline
                     label={
                       <Avatar
-                        alt="User settings"
+                        alt="User"
                         img={`${BaseUrl}/images/${userDetails?.image}`}
                         rounded
                       />
@@ -145,7 +145,6 @@ const NavBar = ({ name }) => {
                       Log out
                     </Dropdown.Item>
                   </Dropdown>
-                 
                 </>
               )}
             </>
@@ -166,9 +165,9 @@ const NavBar = ({ name }) => {
         <Navbar.Collapse>
           {handleActive.home === true ? (
             <>
-              <Navbar.Link href="/" active>
+              <Link  className="text-gray-600 hover:text-blue-800 text-md" href="/" >
                 Home
-              </Navbar.Link>
+              </Link>
             </>
           ) : (
             <>
@@ -177,57 +176,17 @@ const NavBar = ({ name }) => {
           )}
 
           {handleActive.shop === true ? (
-            <>
+            <div>
               <Navbar.Link href="/shop" active>
                 Shop
               </Navbar.Link>
-            </>
+            </div>
           ) : (
-            <>
-              <Navbar.Link href="/shop">Shop</Navbar.Link>
-            </>
+            <div className="" >
+              <Navbar.Link className="text-blac hover:bg-blue-800" href="/shop">Shop</Navbar.Link>
+            </div>
           )}
-          {handleActive.category === true ? (
-            <>
-              <Navbar.Link active>
-                <Dropdown arrowIcon={true} inline label="Category">
-                  {categories.map((category) => {
-                    return (
-                      <>
-                        <Dropdown.Item
-                          onClick={() =>
-                            handleCategory(category?.category_name)
-                          }
-                        >
-                          {category?.category_name}
-                        </Dropdown.Item>
-                      </>
-                    );
-                  })}
-                </Dropdown>
-              </Navbar.Link>
-            </>
-          ) : (
-            <>
-              <Navbar.Link>
-                <Dropdown arrowIcon={true} inline label="Category">
-                  {categories.map((category) => {
-                    return (
-                      <>
-                        <Dropdown.Item
-                          onClick={() =>
-                            handleCategory(category?.category_name)
-                          }
-                        >
-                          {category?.category_name}
-                        </Dropdown.Item>
-                      </>
-                    );
-                  })}
-                </Dropdown>
-              </Navbar.Link>
-            </>
-          )}
+
           {handleActive.brand === true ? (
             <>
               <Navbar.Link active>

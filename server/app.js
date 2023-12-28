@@ -6,6 +6,7 @@ import connect from "./config/db.js";
 import UserRoute from "./routes/userRoute.js";
 import adminRoute from "./routes/adminRoute.js";
 import authRoute from "./routes/authRoute.js";
+import paymentRoute from "./routes/paymentAuth.js";
 import { fileURLToPath } from "url";
 const app = express();
 
@@ -49,6 +50,7 @@ app.use(cors({ origin: "http://localhost:5173" }));
 app.use("/", UserRoute);
 app.use("/auth", authRoute);
 app.use("/admin", adminRoute);
+app.use("/payment",paymentRoute)
 app.listen(PORT, () => {
   console.log(`Server Running on Port ${PORT}`);
 });

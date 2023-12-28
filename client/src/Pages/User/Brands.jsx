@@ -35,9 +35,9 @@ const Brands = () => {
                 Filter by Brand - "<span className="uppercase">{type}</span>"
               </div>
               <div className="p-7  flex gap-10 justify-evenly md:justify-center flex-wrap">
-                {products.map((product, id) => (
-                  <Card products={product} key={id} />
-                ))}
+              
+                  <Card products={products} isRowBased="false"/>
+              
               </div>
             </div>
           </>

@@ -4,17 +4,13 @@ export const userAuth = (req, res, next) => {
   try {
     // console.log(req.headers["authorization"]);
     const token = req.headers["authorization"].split(" ")[1];
-    console.log(token);
     if (!token) {
-      console.log("o");
-      res.json({ noToken: true, message: "Authorization Failed" });
+      res.status(401).json({ noToken: true, message: "Authorization Failed" });
     }
     jwt.verify(
       token,
       process.env.JWT_SECRET ?? "vinayan",
       (err, decodedToken) => {
-      
-        // console.log(decodedToken);
         if (decodedToken) {
           req.body.userId = decodedToken._id;
           // console.log(req.body.userId);

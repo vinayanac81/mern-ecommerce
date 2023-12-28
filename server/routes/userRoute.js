@@ -2,31 +2,38 @@ import express from "express";
 import multer from "multer";
 import {
   addAddress,
+  addProductToWishlist,
+  addReviewRating,
   addToCart,
   applyCoupon,
-  createOrder,
   decrementQuantity,
   deleteAddress,
-  filterByCategory,
-  getAddress,
-  getAllCartProducts,
+  getAddressData,
   getAllProducts,
   getBookedDetail,
   getBookingList,
-  getBrandProducts,
-  getNavbarData,
+  getBrandedProductsByHighToLow,
+  getBrandedProductsByLowToHigh,
+  getBrandedProductsByNewestFirst,
+  getBrands,
+  getCartProductsData,
+  getCartSingleProductData,
+  getCoupons,
+  getLatestProducts,
   getOrderDetails,
-  getProduct,
-  getProducts,
+  getProductDetails,
   getReferralData,
-  getSingleProductData,
+  getReviewrating,
+  getUserInfo,
+  getWishlist,
   incrementQuantity,
-  order,
   removeFromCart,
+  removeProductFromWishlist,
   updateAddress,
+  updateEmailAddress,
+  updateFirstOrLastNameOrGender,
   updatePassword,
-  updateProfilePic,
-  verify,
+  verifyOtpForUpdateEmailAddress,
 } from "../controllers/userCOntroller.js";
 import { userAuth } from "../middleware/auth.js";
 
@@ -40,35 +47,45 @@ const fileStorage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: fileStorage });
-router.get("/get-products", getProducts);
-router.post("/add-to-cart", userAuth, addToCart);
-router.get("/get-cart-products", userAuth, getAllCartProducts);
-router.post("/decrement-quantity", userAuth, decrementQuantity);
-router.post("/increment-quantity", userAuth, incrementQuantity);
-router.post("/remove-from-cart", userAuth, removeFromCart);
-router.get("/get-product", userAuth, getProduct);
-router.post("/order", userAuth, order);
-router.post("/create-order", userAuth, createOrder);
-router.post("/verify", userAuth, verify);
-router.get("/get-booking-list", userAuth, getBookingList);
-router.get("/get-booked-detail", userAuth, getBookedDetail);
-router.get("/get-navbar-data", getNavbarData);
-router.get("/get-brand-products", getBrandProducts);
-router.get("/filter-by-category", filterByCategory);
-router.get("/get-all-products", getAllProducts);
+router.get("/getUserInfo", userAuth, getUserInfo);
 router.post(
-  "/update-profile-image",
+  "/updateFirstOrLastNameOrGender",
   userAuth,
-  upload.single("profile"),
-  updateProfilePic
+  updateFirstOrLastNameOrGender
 );
-router.post("/apply-coupon", userAuth, applyCoupon);
-router.get("/get-address", userAuth, getAddress);
-router.post("/add-address", userAuth, addAddress);
+router.post("/updateEmailAddress", userAuth, updateEmailAddress);
+router.post(
+  "/verifyOtpForUpdateEmailAddress",
+  userAuth,
+  verifyOtpForUpdateEmailAddress
+);
+router.get("/getLatestProducts", getLatestProducts);
+router.get("/getBrands", getBrands);
+router.get("/getProductDetails", getProductDetails);
+router.get("/brandedProductsByNewestFirst", getBrandedProductsByNewestFirst);
+router.get("/brandedProductsByLowToHigh", getBrandedProductsByLowToHigh);
+router.get("/brandedProductsByHighToLow", getBrandedProductsByHighToLow);
+router.post("/addProductToWishlist", userAuth, addProductToWishlist);
+router.get("/getWishlist", userAuth, getWishlist);
+router.get("/getCartSingleProductData", userAuth, getCartSingleProductData);
+router.get("/getAddressData", userAuth, getAddressData);
+router.get("/getCartProductsData", userAuth, getCartProductsData);
+router.post("/removeProductFromWishlist", userAuth, removeProductFromWishlist);
+router.post("/add-to-cart", userAuth, addToCart);
+router.post("/decrementQuantity", userAuth, decrementQuantity);
+router.post("/incrementQuantity", userAuth, incrementQuantity);
+router.post("/removeFromCart", userAuth, removeFromCart);
+router.post("/addAddress", userAuth, addAddress);
+router.post("/applyCoupon", userAuth, applyCoupon);
+router.get("/getCoupons",getCoupons)
+router.post("/addReviewAndRating",userAuth,addReviewRating)
+router.get("/getReviewrating",userAuth,getReviewrating)
+router.get("/getOrders", userAuth, getBookingList);
+router.get("/get-booked-detail", userAuth, getBookedDetail);
+router.get("/get-all-products", getAllProducts);
 router.post("/update-password", userAuth, updatePassword);
 router.post("/update-address", userAuth, updateAddress);
 router.post("/delete-address", userAuth, deleteAddress);
 router.get("/get-referral-data", userAuth, getReferralData);
-router.get("/get-single-product-data",  getSingleProductData);
-router.get("/get-order-details",userAuth,getOrderDetails)
+router.get("/get-order-details", userAuth, getOrderDetails);
 export default router;

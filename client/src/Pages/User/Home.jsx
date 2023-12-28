@@ -2,21 +2,73 @@ import React, { useEffect, useState } from "react";
 import NavBar from "../../Components/User/NavBar";
 import AxiosUserInstance from "./AxiosUserInstance";
 import Card from "../../Components/User/Card";
-import { Button } from "flowbite-react";
-import { Link } from "react-router-dom";
+import ImageSlider from "../../Components/User/ImageSlider";
+import { useMediaQuery } from "../../Hooks/MediaQuery";
+import { Footer } from "../../Components/User/Footer";
+import { BrandSelect } from "../../Components/User/BrandSelect";
+import { Options } from "../../Components/User/Options";
+import { TbTruckDelivery } from "react-icons/tb";
+import { RiLoopRightLine } from "react-icons/ri";
+import { FaDatabase } from "react-icons/fa";
+import { RiCustomerService2Fill } from "react-icons/ri";
+import { FaChevronCircleRight } from "react-icons/fa";
+import { Header } from "../../Components/User/Header";
+import { FaSearch } from "react-icons/fa";
 const Home = () => {
-  const [products, setproducts] = useState([]);
+  const slideImages = [
+    {
+      url: "https://cdn.grabon.in/gograbon/images/web-images/uploads/1618571140235/mobile-offers.jpg",
+    },
+    {
+      url: "https://cdn.grabon.in/gograbon/images/web-images/uploads/1618548389296/laptop-coupons.jpg",
+    },
+    {
+      url: "https://www.theledtv.com/wp-content/uploads/2018/04/amazon-tv-offer.jpeg",
+    },
+  ];
+  const rightSlideImages = [
+    {
+      url: <TbTruckDelivery />,
+      main: "Free Delivery",
+      sub: " Free Shipping on all order",
+    },
+    {
+      url: <RiLoopRightLine />,
+      main: "Return Policy",
+      sub: " Return within 7 days",
+    },
+    {
+      url: <RiCustomerService2Fill />,
+      main: "24/7 Support",
+      sub: " Call anytime,anywere",
+    },
+    {
+      url: <FaDatabase />,
+      main: "Secure Payment",
+      sub: " No payment issue",
+    },
+  ];
+  const styles = {
+    container: (isRowBased) => ({
+      width: isRowBased ? "50%" : "90%",
+      backgroundSize: "center",
+      height: isRowBased ? "300px" : "200px",
+      margin: isRowBased ? "16px auto" : "20px auto",
+      backgroundPosition: "contain",
+    }),
+  };
+ const [latestProducts, setLatestProducts] = useState([])
   const [loading, setloading] = useState(true);
+  useEffect(() => {
+    getProducts();
+  }, []);
   const getProducts = async () => {
     try {
-      // user = JSON.parse(user);
-      // console.log(user._id);
       setloading(true);
-      const { data } = await AxiosUserInstance.get("/get-products", {});
-      console.log(data);
+      const { data } = await AxiosUserInstance.get("/getLatestProducts", {});
       setloading(false);
       if (data.success) {
-        setproducts(data?.products);
+        setLatestProducts(data?.latest5GProducts);
       }
     } catch (error) {
       console.log(error);
@@ -28,30 +80,86 @@ const Home = () => {
       }
     }
   };
-  useEffect(() => {
-    getProducts();
-  }, []);
+  const isRowBased = useMediaQuery("(min-width: 768px)");
   return (
-    <div className=" dark:bg-gray-700">
-      <NavBar name="home" />
+    <div className=" bg-white">
+      {/* <NavBar name="home" /> */}
+      <Header />
+
+      <div className="w-full relative lg:hidden">
+        <div className="w-full  px-2">
+          <input
+            type="text"
+            placeholder="Search for Products , Brands and More"
+            className="py-2 px-12 text-gray-400 outline-none bg-blue-100 shadow-sm drop-shadow-sm rounded-lg w-[100%]"
+            name=""
+            id=""
+          />
+          <span className="absolute z-10 top-3 text-lg px-4 text-gray-400 left-0">
+            <FaSearch />
+          </span>
+        </div>
+      </div>
 
       {loading === false && (
         <>
-          <div className="flex flex-col">
-            <div className=" w-full uppercase text-center pt-5 font-bold text-white text-2xl">
-              New Arrivals
+          <div className="">
+            {" "}
+            <BrandSelect />
+          </div>
+
+          <div
+            style={{
+              height: isRowBased ? "50vh" : "35vh",
+              display: "flex",
+              padding: "0px 36px",
+            }}
+          >
+            <div style={styles.container(isRowBased)}>
+              <ImageSlider slides={slideImages} />
             </div>
-            <div className="p-7  flex gap-10 justify-evenly md:justify-center flex-wrap">
-              {products.map((product, id) => (
-                <Card products={product} key={id} />
-              ))}
+            {isRowBased && (
+              <>
+                <div
+                  style={{
+                    width: isRowBased ? "30%" : "90%",
+                    height: isRowBased ? "300px" : "200px",
+                    margin: isRowBased ? "16px auto" : "20px auto",
+                  }}
+                >
+                  <Options slides={rightSlideImages} />
+                </div>
+              </>
+            )}
+          </div>
+          <div
+            style={{ width: isRowBased ? "85%" : "90%", margin: "10px auto" }}
+            className="flex flex-col bg-white"
+          >
+            <div className="md:px-5 px-8 flex  justify-between w-full mb-4  text-center pt-8 font-bold">
+              <div className="uppercase text-blue-600 hover:text-blue-800 text-lg font-extrabold">
+                <h2> Latest 5g mobiles</h2>
+              </div>
+              <div className="text-sm  text-blue-600 cursor-pointer hover:text-blue-800">
+                <span className="text-3xl">
+                  <FaChevronCircleRight />
+                </span>
+              </div>
             </div>
-            <div className=" w-full flex justify-center mb-40 text-center">
-              <Link to={"/shop"} onClick={() => window.scrollTo(0, 0)}>
-                {" "}
-                <Button color="blue">Show more</Button>
-              </Link>
+
+            <div
+              style={{
+                width: isRowBased ? "" : "90%",
+                margin: "0px auto",
+                padding: "0px 10px",
+              }}
+              className="  flex gap- justify-center md:justify-between "
+            >
+              <Card products={latestProducts} isRowBased={isRowBased} />
             </div>
+          </div>
+          <div className="py-20  dark:bg-black">
+            <Footer />
           </div>
         </>
       )}

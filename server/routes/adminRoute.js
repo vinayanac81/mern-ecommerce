@@ -6,6 +6,7 @@ import {
   addCategory,
   addCoupen,
   addProduct,
+  addToLatestMobiles,
   blockUser,
   cancelOrder,
   deleteBrand,
@@ -23,6 +24,7 @@ import {
   getCategoryAndBrand,
   getCoupens,
   getDashboardData,
+  getLatest5GMobiles,
   getOrderDetails,
   getProduct,
   getSingleBrand,
@@ -79,4 +81,6 @@ router.post("/block-user", adminAuth, blockUser);
 router.post("/unblock-user", adminAuth, unblockUser);
 router.get("/get-category-and-brand",adminAuth,getCategoryAndBrand)
 router.get("/get-order-details",adminAuth,getOrderDetails)
+router.get("/latest5GMobiles",adminAuth,getLatest5GMobiles)
+router.post("/addToLastestMobiles",adminAuth,addToLatestMobiles)
 export default router;

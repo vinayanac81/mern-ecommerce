@@ -17,7 +17,6 @@ export const adminLogin = async (req, res) => {
     const user = await adminModel.findOne({ email });
     if (user) {
       const isPasswordCorrect = await bcrypt.compare(password, user.password);
-      console.log(isPasswordCorrect);
       if (isPasswordCorrect) {
         const token = jwt.sign(
           {
@@ -90,7 +89,6 @@ export const userSignup = async (req, res) => {
       return result;
     }
     let otp = generateOTP(6);
-    console.log(parseInt(otp));
     verifyEmailOtp = otp;
     const sendEmail = async (email) => {
       const transporter = nodemailer.createTransport({
@@ -234,7 +232,6 @@ export const googleLogin = async (req, res) => {
           name,
           email,
         } = response.payload;
-        console.log(response.payload);
         if (email_verified) {
           userModel.findOne({ email }).then(async (user) => {
             if (user) {
@@ -252,10 +249,8 @@ export const googleLogin = async (req, res) => {
                 process.env.JWT_SECRET ?? "vinayanac",
                 { expiresIn: "1d" }
               );
-              // console.log(user._id);
               let myObjectId = user._id;
               let myObjectIdString = myObjectId.toString();
-              // console.log(myObjectIdString);
               const cart = await cartModel.findOne({
                 user_id: myObjectIdString,
               });
@@ -265,7 +260,6 @@ export const googleLogin = async (req, res) => {
               } else {
                 cartCount = cart?.cart_count;
               }
-              // console.log(cart);
               return res.json({
                 success: true,
                 token,
@@ -274,10 +268,6 @@ export const googleLogin = async (req, res) => {
                 message: "Login Successfully",
               });
             } else {
-              // program to generate random strings
-
-              // declare all characters
-
               function generateString(length) {
                 const characters =
                   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -288,11 +278,9 @@ export const googleLogin = async (req, res) => {
                     Math.floor(Math.random() * charactersLength)
                   );
                 }
-
                 return result;
               }
               let referral = generateString(16);
-              // console.log(referral);
               userModel
                 .create({
                   first_name: given_name,
@@ -331,7 +319,6 @@ export const googleLogin = async (req, res) => {
                   } else {
                     cartCount = cart?.cart_count;
                   }
-                  console.log(cart);
                   return res.json({
                     success: true,
                     token,

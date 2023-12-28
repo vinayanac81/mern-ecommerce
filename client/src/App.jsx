@@ -15,7 +15,6 @@ import Signup from "./Pages/User/Signup";
 import Cart from "./Pages/User/Cart";
 import Checkout from "./Pages/User/Checkout";
 import PaymentSuccess from "./Pages/User/PaymentSuccess";
-import CheckoutPage from "./Pages/User/CheckoutPage";
 import Booking from "./Pages/User/Booking";
 import BookedProduct from "./Pages/User/BookedProduct";
 import Orders from "./Pages/Admin/Orders";
@@ -33,12 +32,20 @@ import {
   UserLoginAuth,
 } from "./Authorization/Authorization";
 import ViewUserProfile from "./Pages/Admin/ViewUserProfile";
-import Validation from "./Pages/Validation";
 import ViewAddress from "./Pages/User/ViewAddress";
 import EditAddress from "./Pages/User/EditAddress";
 import UserViewProduct from "./Pages/User/UserViewProduct";
 import OrderViewPage from "./Pages/Admin/OrderViewPage";
 import UserOrderViewPage from "./Pages/User/UserOrderViewPage";
+import { BrandedMobiles } from "./Pages/User/BrandedMobiles";
+import { ViewMobile } from "./Pages/User/ViewMobile";
+import { ViewCart } from "./Pages/User/ViewCart";
+import { Account } from "./Pages/User/Account";
+import { Addresses } from "./Pages/User/Addresses";
+import { Wishlist } from "./Pages/User/Wishlist";
+import { CheckoutMultie } from "./Pages/User/CheckoutMultie";
+import { UserOrders } from "./Pages/User/Orders";
+import { OrderView } from "./Pages/User/OrderViewPage";
 function App() {
   return (
     <>
@@ -50,6 +57,8 @@ function App() {
           <Route path="/filter/brand/:type" element={<Brands />} />
           <Route path="/filter/category/:type" element={<Category />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/mobiles/:brand" element={<BrandedMobiles />} />
+          <Route path="/mobile/:name/:id" element={<ViewMobile />} />
           <Route path="/product/view/:id" element={<UserViewProduct />} />
           <Route element={<UserLoginAuth />}>
             <Route path="/login" element={<Login />} />
@@ -58,9 +67,14 @@ function App() {
           <Route element={<UserAuth />}>
             <Route path="/add-address" element={<AddAddress />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/account" element={<UserProfile />} />
+            <Route path="/viewcart" element={<ViewCart />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/account/orders" element={<UserOrders />} />
+            <Route path="/account/order/:id" element={<OrderView />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/checkout" element={<CheckoutMultie />} />
+            <Route path="/account/addresses" element={<Addresses />} />
             <Route path="/checkout/:id" element={<Checkout />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-success" element={<PaymentSuccess />} />
             <Route path="/booking" element={<Booking />} />
             <Route path="/view-address/:id" element={<ViewAddress />} />
@@ -72,7 +86,6 @@ function App() {
           {/* <Route element={<AdminLoginAuth />}> */}
           <Route path="/admin" element={<AdminLogin />} />
           {/* </Route> */}
-          <Route path="/validation" element={<Validation />} />
           {/* <Route element={<AdminAuth />}> */}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/products" element={<AdminProducts />} />

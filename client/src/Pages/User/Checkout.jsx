@@ -1,111 +1,193 @@
-import React, { useEffect, useState } from "react";
-import NavBar from "../../Components/User/NavBar";
+import { useDispatch, useSelector } from "react-redux";
+import { IoMdCheckmark } from "react-icons/io";
+import { useEffect, useState } from "react";
+import { FaPlus } from "react-icons/fa6";
+import { FaRupeeSign } from "react-icons/fa";
+import { FaMinus } from "react-icons/fa";
+import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import AxiosUserInstance from "./AxiosUserInstance";
-import toast from "react-hot-toast";
+import { Header } from "../../Components/User/Header";
 import { BaseUrl } from "../../Constants";
-import { useDispatch } from "react-redux";
 import { setUserCart } from "../../Toolkit/UserSlice";
 const Checkout = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { userDetails } = useSelector((state) => state.user);
+  const [address, setaddress] = useState([]);
+  const [addressSelected, setaddressSelected] = useState(0);
+  const [totalPrice, settotalPrice] = useState(0);
+  const [discount, setdiscount] = useState(0);
+  const [changeAddress, setchangeAddress] = useState(false);
+  const [radioButtonSelected, setradioButtonSelected] =
+    useState(addressSelected);
+  const [showOrderSummery, setshowOrderSummery] = useState(true);
   const [product, setproduct] = useState({});
-  const [address, setaddress] = useState({});
-  const [walletAmount, setwalletAmount] = useState("");
-  const [discountAvailbale, setdiscountAvailbale] = useState(false);
-  const [discountAmount, setdiscountAmount] = useState("");
-  const [couponCode, setcouponCode] = useState("");
+  const [paymentOptions, setpaymentOptions] = useState(false);
   const [paymentDetails, setpaymentDetails] = useState({
     cod: false,
     online: false,
     wallet: false,
-    address: false,
-    addressId: "",
-    amount: "",
-    discount_price: "",
-    after_discount: "",
   });
-  const handleAddress = (status, id) => {
-    console.log(status, id);
-    if (status === false) {
-      setpaymentDetails({ ...paymentDetails, address: true, addressId: id });
-    } else {
-      setpaymentDetails({ ...paymentDetails, address: false, addressId: "" });
-    }
-  };
+  const [couponCode, setcouponCode] = useState("");
+  const [discountAvailable, setdiscountAvailable] = useState(false);
   console.log(product);
-  const [loading, setloading] = useState(false);
-  const getProducts = async () => {
+  useEffect(() => {
+    getInitialData();
+  }, []);
+  const getInitialData = async () => {
     try {
-      const { data } = await AxiosUserInstance.get("/get-product", {
-        params: { id },
-      });
-      console.log(data);
-      if (data.success) {
-        setaddress(data.address);
-        setwalletAmount(data.wallet.wallet);
-        setpaymentDetails({
-          ...paymentDetails,
-          amount: data?.product?.total_price,
-        });
-        setproduct(data?.product);
-      } else if (data.tokenExp || data.noToken) {
-        toast.error("Please login");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("cart");
+      const addressData = await AxiosUserInstance.get("/getAddressData");
+      const productData = await AxiosUserInstance.get(
+        "/getCartSingleProductData",
+        {
+          params: { productId: id },
+        }
+      );
+      console.log(productData);
+      if (addressData?.data?.success) {
+        setaddress(addressData?.data?.address);
+      }
+      if (productData?.data?.success) {
+        setproduct(productData?.data?.productData[0]);
+        settotalPrice(
+          productData?.data?.productData[0]?.product?.offer_price *
+            productData?.data?.productData[0]?.product_count
+        );
       }
     } catch (error) {
       console.log(error);
     }
   };
-  useEffect(() => {
-    getProducts();
-  }, []);
+  const decrementCount = async (productId) => {
+    try {
+      const { data } = await AxiosUserInstance.post("/decrementQuantity", {
+        productId,
+      });
+      if (data.success) {
+        getInitialData();
+        toast.success(data?.message);
+      }
+    } catch (error) {
+      console.log(error);
+      if (
+        error?.response?.data?.message === "unauthorized user" ||
+        error?.response?.data?.message === "Unauthorized"
+      ) {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("cart");
+        location.reload();
+        toast.error("Please login");
+      }
+    }
+  };
+  const incrementCount = async (productId, count, stock, productName) => {
+    try {
+      console.log(productId, count, stock, productName);
+      if (count >= stock) {
+        toast.error(`${productName}... - Only ${stock} Piece left`);
+      } else {
+        const { data } = await AxiosUserInstance.post("/incrementQuantity", {
+          productId,
+        });
+        if (data.success) {
+          getInitialData();
+          toast.success(data.message);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      if (
+        error?.response?.data?.message === "unauthorized user" ||
+        error?.response?.data?.message === "Unauthorized"
+      ) {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("cart");
+        location.reload();
+        toast.error("Please login");
+      }
+    }
+  };
+  const removeFromCart = async (productId) => {
+    try {
+      const { data } = await AxiosUserInstance.post("/removeFromCart", {
+        productId,
+      });
+      if (data.success) {
+        getInitialData();
+        toast.success(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleCoupon = async () => {
+    try {
+      const { data } = await AxiosUserInstance.post("/applyCoupon", {
+        couponCode,
+        amount: totalPrice,
+      });
+      console.log(data);
+      if (data.success) {
+        toast.success(data.message);
+        setdiscountAvailable(true);
+        setdiscount(data.discount);
+      } else if (data.invalidCoupon) {
+        toast.error(data?.message);
+      } else if (data.couponExp) {
+        toast.error(data?.message);
+      } else if (data.success === false) {
+        toast.error(data?.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const handleOpenRazorpay = async (data) => {
-    console.log(data.id);
     let token;
     const options = {
       key: "rzp_test_mn6BBcws8w4dnR",
       amount: Number(data.amount),
       currency: data.currency,
-      name: "PHONE HOUSE",
+      name: "5G WORLD",
       description: "Nothing",
       order_id: data.id,
       handler: async (response) => {
         token = localStorage.getItem("token");
-        await AxiosUserInstance.post(
-          "/create-order",
-          { product },
-          {
-            params: {
-              orderId: response.razorpay_order_id,
-              paymentDetails,
-              arr: false,
-            },
-          }
-        ).then(async (res) => {
+        await AxiosUserInstance.post("/payment/createOrder", {
+          product,
+          totalPrice,
+          discount,
+          paymentDetails,
+          arr: false,
+          address: address[addressSelected]._id,
+          orderId: response.razorpay_order_id,
+        }).then(async (res) => {
           if (res.data.success) {
             console.log(res.data);
             token = localStorage.getItem("token");
-            await AxiosUserInstance.post(
-              "/verify",
-              { response },
-              {
-                params: { productId: id, product, arr: false },
-              }
-            ).then((result) => {
+            await AxiosUserInstance.post("/payment/verify", {
+              response,
+              product,
+              totalPrice,
+              discount,
+              paymentDetails,
+              arr: false,
+              address: address[addressSelected]._id,
+            }).then((result) => {
               if (result.data.success) {
                 if (result.data.cart === null) {
-                  toast.success("Paymnet successfully");
+                  toast.success("Payment successfully");
                   localStorage.setItem("cart", 0);
                   dispatch(setUserCart(0));
                   navigate("/order-success", { state: { method: "ONLINE" } });
                 } else {
                   toast.success("Payment successfully");
-                  localStorage.setItem("cart", result?.data?.cart?.cart_count);
-                  dispatch(setUserCart(result?.data?.cart?.cart_count));
+                  localStorage.setItem("cart", data?.cart?.cart_count);
+                  dispatch(setUserCart(data?.cart?.cart_count));
                   navigate("/order-success", { state: { method: "ONLINE" } });
                 }
               } else {
@@ -124,86 +206,42 @@ const Checkout = () => {
   const handleOrder = async (e) => {
     try {
       e.preventDefault();
-      window.scroll(0, 0);
-      console.log(paymentDetails);
-      if (paymentDetails.wallet) {
-        toast.error("Insufficient amount in your wallet...");
-      }
+      window.scrollTo(0, 0);
       if (paymentDetails.cod) {
-        const { data } = await AxiosUserInstance.post(
-          "/order",
-          { product },
-          { params: { paymentDetails, productId: id, arr: false } }
-        );
+        const { data } = await AxiosUserInstance.post("/payment/order", {
+          product,
+          totalPrice,
+          discount,
+          paymentDetails,
+          arr: false,
+          address: address[addressSelected]._id,
+        });
         console.log(data);
         if (data.success) {
-          toast.success("Order successfully");
-          localStorage.setItem("cart", data?.cart?.cart_count);
-          dispatch(setUserCart(data?.cart?.cart_count));
-          navigate("/order-success", { state: { method: "COD" } });
-        } else if (data.tokenExp || data.noToken) {
-          toast.error("Please login");
-          localStorage.removeItem("user");
-          localStorage.removeItem("token");
-          localStorage.removeItem("cart");
+          if (data.cart === 0) {
+            toast.success("Order successfully");
+            localStorage.setItem("cart", 0);
+            dispatch(setUserCart(0));
+            navigate("/order-success", { state: { method: "COD" } });
+          } else {
+            toast.success("Order successfully");
+            localStorage.setItem("cart", data?.cart);
+            dispatch(setUserCart(data?.cart));
+            navigate("/order-success", { state: { method: "COD" } });
+          }
         }
       } else if (paymentDetails.online) {
-        const { data } = await AxiosUserInstance.post(
-          "/order",
-          {},
-          { params: { paymentDetails, totalAmount: paymentDetails.amount } }
-        );
-        console.log(data);
+        const { data } = await AxiosUserInstance.post("/payment/order", {
+          product,
+          totalPrice,
+          discount,
+          paymentDetails,
+          arr: false,
+          address: address[addressSelected]._id,
+        });
         if (data.success) {
           handleOpenRazorpay(data.data);
         }
-      }
-    } catch (error) {}
-  };
-  const paymentMethod = (method) => {
-    console.log(method);
-    if (method === "COD") {
-      setpaymentDetails({
-        ...paymentDetails,
-        cod: true,
-        online: false,
-        wallet: false,
-      });
-    } else if (method === "WALLET") {
-      setpaymentDetails({
-        ...paymentDetails,
-        cod: false,
-        online: false,
-        wallet: true,
-      });
-    } else {
-      setpaymentDetails({
-        ...paymentDetails,
-        cod: false,
-        online: true,
-        wallet: false,
-      });
-    }
-  };
-  const handleCoupon = async () => {
-    try {
-      const { data } = await AxiosUserInstance.post("/apply-coupon", {
-        couponCode,
-        amount: paymentDetails.amount,
-      });
-      if (data.success) {
-        toast.success(data.message);
-        let amt = parseInt(data.discount);
-
-        setdiscountAvailbale(true);
-        setpaymentDetails({
-          ...paymentDetails,
-          discount_price: data.discount,
-          after_discount: paymentDetails.amount - amt,
-        });
-        setdiscountAmount(parseInt(data.discount));
-      } else if (data.invalidCoupon) {
-      } else if (data.tokenExp || data.noToken) {
       }
     } catch (error) {
       console.log(error);
@@ -211,180 +249,504 @@ const Checkout = () => {
   };
   return (
     <div>
-      <NavBar />
-      <div>
-        {loading && (
-          <>
-            <div className="w-full  h-screen flex justify-center items-center">
-              <div role="status">
-                <svg
-                  aria-hidden="true"
-                  className="inline w-14 h-14 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-                  viewBox="0 0 100 101"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                    fill="currentColor"
-                  />
-                  <path
-                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                    fill="currentFill"
-                  />
-                </svg>
-                <span className="sr-only">Loading...</span>
-              </div>
-            </div>
-          </>
-        )}
-        <div className="grid sm:px-10  lg:grid-cols-2 lg:px-20 xl:px-32">
-          <div className="px-4  pt-8">
-            <p className="text-xl font-medium">Order Summary</p>
-            <p className="text-gray-400">
-              Check your items. And select a suitable shipping method.
-            </p>
-            <div className="mt-8  space-y-3 rounded-lg border bg-white px-2 py-4 sm:px-6">
-              <div className="flex flex-col rounded-lg bg-white sm:flex-row">
-                <img
-                  className="m-2 h-24 w-28 rounded-md border object-cover object-center"
-                  src={`${BaseUrl}/images/${product?.image}`}
-                />
-                <div className="flex w-full flex-col px-4 py-4">
-                  <span className="font-semibold">{product?.product_name}</span>
-                  <span className="float-right text-gray-400">
-                    {product?.category}
+      <Header />
+      <div
+        style={{ backgroundColor: "#f0f0f0" }}
+        className=" pt-6 px-5 pb-10  md:px-40"
+      >
+        <div className="gap-5 flex">
+          <div className="w-[70%] flex flex-col gap-5">
+            {/* Login */}
+            <div
+              style={{
+                boxShadow:
+                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+              }}
+              className="w-full px-10 py-4 bg-white h-20"
+            >
+              <div className="">
+                <div className="flex items-center gap-3">
+                  <h2 className="bg-gray-300 w-5 rounded-sm text-blue-600 text-center">
+                    1
+                  </h2>
+                  <h2 className="uppercase text-gray-400 font-semibold ">
+                    Login
+                  </h2>
+                  <span className="text-blue-600 ">
+                    <IoMdCheckmark />
                   </span>
-                  <div className="flex gap-4">
-                    <p className="mt-auto text-sm font-bold">
-                      Price : {product?.total_price}
-                    </p>
-                    <p className="mt-auto text-sm font-bold">
-                      Quantity : {product?.quantity}
-                    </p>
-                  </div>
+                </div>
+                <div className="flex px-8 gap-5 items-center mt-1 font-semibol text-slate-600">
+                  <h2>
+                    {userDetails.first_name.charAt(0).toUpperCase() +
+                      userDetails.first_name.slice(1)}{" "}
+                    {userDetails.last_name}
+                  </h2>
+                  <h2>{userDetails.email}</h2>
                 </div>
               </div>
             </div>
-            <p className="mt-8 text-lg font-medium">Payment Method</p>
-            <form className="mt-5 grid gap-6">
-              <div className="relative">
-                <input
-                  className="peer hidden"
-                  id="radio_3"
-                  onChange={() => paymentMethod("WALLET")}
-                  type="radio"
-                  checked={paymentDetails.wallet}
-                  name=""
-                />
-                <span className="peer-checked:border-gray-700 absolute right-4 top-1/2 box-content block h-3 w-3 -translate-y-1/2 rounded-full border-8 border-gray-300 bg-white" />
-                <label
-                  className="peer-checked:border-2 peer-checked:border-gray-700 peer-checked:bg-gray-50 flex cursor-pointer select-none rounded-lg border border-gray-300 p-4"
-                  htmlFor="radio_3"
-                >
-                  <div className="ml-5">
-                    <span className="mt-2 font-semibold">WALLET</span>
-                    <span className="px-4">{walletAmount} Rupees</span>
-                    <p className="text-slate-500 text-sm leading-6">
-                      Delivery: 2-4 Days
-                    </p>
+            {/* Address */}
+            <div
+              style={{
+                boxShadow:
+                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+              }}
+              className="w-full  bg-white "
+            >
+              {changeAddress ? (
+                <div>
+                  <div className="flex px-10 py-4 bg-blue-600 justify-between gap-3">
+                    <div className="flex  items-center gap-3">
+                      <h2 className="bg-white w-5 rounded-sm text-blue-600 text-center">
+                        2
+                      </h2>
+                      <h2 className="uppercase text-white font-semibold ">
+                        Delivery Address
+                      </h2>
+                    </div>
                   </div>
-                </label>
+                  <div className="">
+                    {address.map((data, index) => {
+                      console.log(index, radioButtonSelected);
+                      return (
+                        <div key={index} className="py-4 flex px-10">
+                          <div className="  w-[70%]">
+                            <div className="flex items-center gap-3">
+                              <input
+                                onChange={() => setradioButtonSelected(index)}
+                                type="radio"
+                                className="w-4"
+                                name=""
+                                checked={
+                                  index === radioButtonSelected ? true : false
+                                }
+                                id=""
+                                value={radioButtonSelected}
+                              />
+
+                              <h2 className="text-slate-500 font-semibold">
+                                {data?.name}
+                              </h2>
+                              <div className="bg-gray-300 px-2 text-sm py-1 rounded-sm text-gray-500">
+                                Home
+                              </div>
+                              <h2 className="text-slate-500 font-semibold">
+                                {data?.mobile_number}
+                              </h2>
+                            </div>
+                            <div className="mt-2 flex flex-wrap px-7 gap-1 text-slate-500 text-sm font-semibold">
+                              <span>{data?.address}, </span>
+                              <span>
+                                {data?.place} {data?.district}
+                              </span>{" "}
+                              District,
+                              <span>{data?.state} - </span>
+                              <span className="text-slate-700 font-semibold">
+                                {data?.pincode}{" "}
+                              </span>
+                            </div>
+                            {index === radioButtonSelected && (
+                              <>
+                                {" "}
+                                <div className="px-7 mt-3 font-semibold">
+                                  <button className="bg-orange-500 uppercase text-white px-10 py-2 rounded-sm">
+                                    Deliver here
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                          <div className="flex w-[30%] justify-end">
+                            {index === radioButtonSelected && (
+                              <button className="uppercase text-blue-600 font-semibold ">
+                                Edit
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="pb-4">
+                  <div className="flex px-10 pt-4 justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <h2 className="bg-gray-300 w-5 rounded-sm text-blue-600 text-center">
+                        2
+                      </h2>
+                      <h2 className="uppercase  text-gray-400 font-semibold ">
+                        Delivery Address
+                      </h2>
+                      <span className="text-blue-600 ">
+                        <IoMdCheckmark />
+                      </span>
+                    </div>
+                    <div className="">
+                      <button
+                        onClick={() => {
+                          setchangeAddress(true);
+                          setshowOrderSummery(false);
+                        }}
+                        className="uppercase bg-white border-2 text-blue-600 font-semibold hover:bg-blue-600 hover:text-white hover:border-2 hover:border-blue-600 py-2 px-6 rounded-sm"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    style={{ paddingLeft: "74px" }}
+                    className="  w-[80%]  gap- items-center mt-1  text-gray-400"
+                  >
+                    <span className="text-gray-600">
+                      {" "}
+                      {address[addressSelected]?.name}
+                    </span>
+                    <h2 className="flex">
+                      {" "}
+                      {address[addressSelected]?.address},{" "}
+                      {address[addressSelected]?.place}{" "}
+                      {address[addressSelected]?.district} District,
+                      {address[addressSelected]?.state} -{" "}
+                      <span className="text-gray-600 pl-1">
+                        {" "}
+                        {address[addressSelected]?.pincode}
+                      </span>
+                    </h2>
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* ORDER SUMMERY */}
+            <div
+              style={{
+                boxShadow:
+                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+              }}
+            >
+              <div
+                className={`${
+                  showOrderSummery ? "bg-blue-600 " : "bg-white"
+                } py-4 px-10`}
+              >
+                <div className="flex   justify-between">
+                  <div className="flex gap-3">
+                    <h2
+                      className={`${
+                        showOrderSummery ? "bg-white" : "bg-gray-300"
+                      } w-5 h-6 rounded-sm text-blue-600 text-center`}
+                    >
+                      3
+                    </h2>
+                    <h2
+                      className={`uppercase ${
+                        showOrderSummery ? "text-white" : "text-gray-400"
+                      }  font-semibold `}
+                    >
+                      order summery
+                    </h2>
+                  </div>
+                  {showOrderSummery === false && (
+                    <div className="">
+                      <button
+                        onClick={() => {
+                          setpaymentOptions(false);
+                          setshowOrderSummery(true);
+                        }}
+                        className="uppercase text-blue-600 font-semibold border-2 px-6 py-2"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="relative">
-                <input
-                  className="peer hidden"
-                  id="radio_1"
-                  onChange={() => paymentMethod("COD")}
-                  type="radio"
-                  checked={paymentDetails.cod}
-                  name=""
-                  // defaultChecke
-                />
-                <span className="peer-checked:border-gray-700 absolute right-4 top-1/2 box-content block h-3 w-3 -translate-y-1/2 rounded-full border-8 border-gray-300 bg-white" />
-                <label
-                  className="peer-checked:border-2 peer-checked:border-gray-700 peer-checked:bg-gray-50 flex cursor-pointer select-none rounded-lg border border-gray-300 p-4"
-                  htmlFor="radio_1"
-                >
-                  {/* <img
-                    className="w-14 object-contain"
-                    src="/images/naorrAeygcJzX0SyNI4Y0.png"
-                    alt
-                  /> */}
-                  <div className="ml-5">
-                    <span className="mt-2 font-semibold">Cash on delivery</span>
-                    <p className="text-slate-500 text-sm leading-6">
-                      Delivery: 2-4 Days
-                    </p>
+
+              {showOrderSummery && (
+                <>
+                  {" "}
+                  <div className="  bg-white ">
+                    <div className="flex px-10 py-4 border-b-2 pb-8">
+                      <div className="w-[20%] flex-wrap">
+                        <div className="w-28 h-28  mx-auto">
+                          <img
+                            src={`${BaseUrl}/images/${product?.product?.image}`}
+                            alt=""
+                          />
+                        </div>
+                        <div className="flex mx-auto justify-between mt-3 ">
+                          <div
+                            onClick={() => {
+                              product?.product_count === 1
+                                ? ""
+                                : decrementCount(product?.product?._id);
+                            }}
+                            className={` flex justify-center items-center text-blue-600 text-sm w-6 rounded-full outline ${
+                              product?.product_count === 1
+                                ? "outline-gray-200"
+                                : "cursor-pointer outline-gray-400"
+                            }  shadow-2xl`}
+                          >
+                            <FaMinus />
+                          </div>
+                          <div className=" w-12 outline font-semibold text-blue-600 outline-2 text-center outline-gray-400">
+                            {product?.product_count}
+                          </div>
+                          <div
+                            onClick={() => {
+                              incrementCount(
+                                product?.product?._id,
+                                product?.product_count,
+                                product?.product?.stock,
+                                product?.product?.product_name
+                              );
+                            }}
+                            className="cursor-pointer flex justify-center items-center text-blue-600 text-sm w-6 rounded-full outline outline-gray-400 shadow-2xl"
+                          >
+                            <FaPlus />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="w-[60%] px-5">
+                        <h2 className="font-extrabold">
+                          {product?.product?.product_name}
+                        </h2>
+                        <div className="flex mt-2 gap-5 text-slate-600">
+                          <h2>{product?.product?.ram}</h2>
+                          <h2>{product?.product?.rom}</h2>
+                        </div>
+                        <div className="flex gap-4 mt-2">
+                          <span
+                            style={{ textDecoration: "line-through" }}
+                            className="flex items-center text-gray-700 "
+                          >
+                            <span className="text-sm">
+                              <FaRupeeSign />
+                            </span>
+                            {product?.product?.original_price}{" "}
+                          </span>
+                          <span className="flex items-center text-black font-bold ">
+                            <span className="text-sm">
+                              <FaRupeeSign />
+                            </span>
+                            {product?.product?.offer_price}{" "}
+                          </span>
+                          <span className="text-emerald-600 ">
+                            {100 -
+                              Math.round(
+                                (product?.product?.offer_price /
+                                  product?.product?.original_price) *
+                                  100
+                              )}
+                            % Off
+                          </span>
+                        </div>
+                        <div className="flex   bg-blac">
+                          <button
+                            onClick={() =>
+                              removeFromCart(product?.product?._id)
+                            }
+                            className="uppercase font-bold pt-9"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                      <div className="w-[20%] flex-wrap">
+                        <h2 className="text-sm text-slate-500">
+                          Delivery by Tommorrow
+                        </h2>
+                        <span className="text-emerald-600 text-sm font-semibold">
+                          Free delivery
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </label>
+                  <div className="flex justify-end px-8 py-4">
+                    <button
+                      onClick={() => {
+                        setshowOrderSummery(false);
+                        setpaymentOptions(true);
+                      }}
+                      className="uppercase  bg-orange-500 px-14 py-2 text-white"
+                    >
+                      CONTInue
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+            {/* PAYMENT OPTIONS */}
+            <div
+              style={{
+                boxShadow:
+                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+              }}
+            >
+              <div
+                className={`${
+                  paymentOptions ? "bg-blue-600 " : "bg-white"
+                } py-4 px-10`}
+              >
+                <div className="flex   gap-3">
+                  <h2
+                    className={`${
+                      paymentOptions ? "bg-white" : "bg-gray-300"
+                    } w-5 rounded-sm text-blue-600 text-center`}
+                  >
+                    4
+                  </h2>
+                  <h2
+                    className={`uppercase ${
+                      paymentOptions ? "text-white" : "text-gray-400"
+                    }  font-semibold `}
+                  >
+                    Payment options
+                  </h2>
+                </div>
               </div>
-              <div className="relative">
-                <input
-                  className="peer hidden"
-                  id="radio_2"
-                  checked={paymentDetails.online}
-                  onChange={() => paymentMethod("ONLINE")}
-                  type="radio"
-                  name="radio"
-                  // defaultChecke
-                />
-                <span className="peer-checked:border-gray-700 absolute right-4 top-1/2 box-content block h-3 w-3 -translate-y-1/2 rounded-full border-8 border-gray-300 bg-white" />
-                <label
-                  className="peer-checked:border-2 peer-checked:border-gray-700 peer-checked:bg-gray-50 flex cursor-pointer select-none rounded-lg border border-gray-300 p-4"
-                  htmlFor="radio_2"
-                >
-                  {/* <img
-                    className="w-14 object-contain"
-                    src="/images/oG8xsl3xsOkwkMsrLGKM4.png"
-                    alt
-                  /> */}
-                  <div className="ml-5">
-                    <span className="mt-2 font-semibold">Online payment</span>
-                    <p className="text-slate-500 text-sm leading-6">
-                      Delivery: 2-4 Days
-                    </p>
-                  </div>
-                </label>
-              </div>
-            </form>
-          </div>
-          <div className="mt-10 bg-gray-50 px-4 pt-8 lg:mt-0">
-            <p className="text-xl font-medium">Payment Details</p>
-            <p className="text-gray-400">
-              Complete your order by providing your payment details.
-            </p>
-            <p className="text-xl mt-4 font-medium">Select payment address</p>
-            {address ? (
-              <>
-                <div className="w-full border-gray-300 border-2 my-3 rounded  flex">
-                  <div className="w-[70%] font-bold p-4">
-                    First Name : {address.first_name} , Last Name :{" "}
-                    {address.last_name} , Email : {address.email} , Phone Number
-                    : {address.phone_number} , Place : {address.place}......
-                  </div>
-                  <div className="w-[30%] flex justify-center items-center">
+              {paymentOptions && (
+                <div className="py-4 px-10">
+                  <div className="flex pb-2 items-center gap-4">
                     <input
                       type="radio"
-                      checked={paymentDetails.address}
-                      onClick={() =>
-                        handleAddress(paymentDetails.address, address._id)
+                      checked={paymentDetails.online}
+                      className="w-4 "
+                      onChange={() =>
+                        setpaymentDetails({
+                          ...paymentDetails,
+                          online: true,
+                          wallet: false,
+                          cod: false,
+                        })
                       }
-                      className="w-8 h-8 "
                       name=""
                       id=""
                     />
+                    <span className="font-semibold text-slate-600">
+                      ONLINE{" "}
+                    </span>
+                  </div>
+                  <div className="flex items-center pb-2 gap-4">
+                    <input
+                      onChange={() =>
+                        setpaymentDetails({
+                          ...paymentDetails,
+                          online: false,
+                          wallet: false,
+                          cod: true,
+                        })
+                      }
+                      checked={paymentDetails.cod}
+                      type="radio"
+                    />
+                    <span className="font-semibold text-slate-600">
+                      CASH ON DELIVERY{" "}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <input
+                      onChange={() =>
+                        setpaymentDetails({
+                          ...paymentDetails,
+                          online: false,
+                          wallet: true,
+                          cod: false,
+                        })
+                      }
+                      type="radio"
+                      checked={paymentDetails.wallet}
+                    />
+                    <span className="font-semibold text-slate-600">
+                      WALLET{" "}
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <button
+                      onClick={handleOrder}
+                      className="uppercase rounded-sm bg-orange-500 px-10 py-2 text-white font-bold"
+                    >
+                      Continue
+                    </button>
                   </div>
                 </div>
-              </>
-            ) : (
-              ""
-            )}
-            <div className>
-              <div className="mt-2 pt-2 items-center flex gap-4  border-t">
+              )}
+            </div>
+          </div>
+          <div className="w-[30%] h-80 bg-whit flex flex-col gap-5">
+            <div
+              style={{
+                boxShadow:
+                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+              }}
+              className=" bg-white h-64  "
+            >
+              <h2 className="uppercase py-4 px-6 text-gray-500 border-b font-extrabold">
+                Price details
+              </h2>
+              <div className="flex justify-between">
+                <h2 className="px-6 py-4 text-gray-500 font-semibold">Price</h2>
+                <h2 className="py-4 flex items-center px-6 text-gray-500 font-semibold">
+                  <span className="text-sm">
+                    {" "}
+                    <FaRupeeSign />{" "}
+                  </span>{" "}
+                  {totalPrice}
+                </h2>
+              </div>
+              <div className="flex justify-between">
+                <h2 className="px-6 pb-2 text-gray-500 font-semibold">
+                  Discount
+                </h2>
+                <h2 className="py- flex items-center  px-6 text-emerald-600 font-semibold">
+                  -{" "}
+                  <span className="text-sm">
+                    <FaRupeeSign />{" "}
+                  </span>
+                  {discount}
+                </h2>
+              </div>
+              <div className="flex justify-between pb-2 border-b-2 mx-6 ">
+                <h2 className="px- py-2 text-gray-500 font-semibold">
+                  Delivery Charges
+                </h2>
+                <h2 className="py-2 flex items-center   px- text-gray-600 font-semibold">
+                  <span className="text-sm">
+                    <FaRupeeSign />
+                  </span>
+                  <span style={{ textDecoration: "line-through" }}>100</span>
+
+                  <span className="pl-2  text-emerald-600">Free</span>
+                </h2>
+              </div>
+              <div className="pt-4 px-6">
+                <div className="flex justify-between items-center pb-4 ">
+                  <h2 className="font-extrabold">Total Amount </h2>
+                  <div className="flex items-center">
+                    {" "}
+                    <span className="text-sm">
+                      <FaRupeeSign />
+                    </span>
+                    <span className="font-extrabold">
+                      {totalPrice - discount}
+                    </span>
+                  </div>{" "}
+                </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                boxShadow:
+                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+              }}
+              className="mt-   bg-white"
+            >
+              <div className="mt- px-4 py-4  items-center flex justify-between gap-4 ">
                 <input
                   placeholder="Enter coupon code"
-                  className="bg-gray-600 py-2 rounded text-white px-4"
+                  className="bg-gray-200 outline-none border-none py-2 rounded text-slate-800 px-4"
                   type="text"
                   name=""
                   onChange={(e) => setcouponCode(e.target.value)}
@@ -395,53 +757,17 @@ const Checkout = () => {
                   onClick={handleCoupon}
                   className="px-4 py-2 text-white  bg-blue-500 rounded"
                 >
-                  Apply Coupon
+                  Apply
                 </button>
               </div>
-              {discountAvailbale && (
+              {discountAvailable && (
                 <>
-                  <p className="text-sm mt-2 font-medium text-gray-900">
+                  <p className="text-sm mt- font-medium px-6 mb-4  text-emerald-600">
                     Coupon applied
                   </p>
                 </>
               )}
-              <div className="mt-3 border-t border-b py-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-900">Subtotal</p>
-                  <p className="font-semibold text-gray-900">
-                    {product?.total_price}
-                  </p>
-                </div>
-                {discountAvailbale && (
-                  <>
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-900">
-                        Discount
-                      </p>
-                      <p className="font-semibold text-gray-900">
-                        {discountAmount}
-                      </p>
-                    </div>
-                  </>
-                )}
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-900">Shipping</p>
-                  <p className="font-semibold text-gray-900">Free</p>
-                </div>
-              </div>
-              <div className="mt-6 flex items-center justify-between">
-                <p className="text-sm font-medium text-gray-900">Total</p>
-                <p className="text-2xl font-semibold text-gray-900">
-                  {paymentDetails?.amount - discountAmount}
-                </p>
-              </div>
             </div>
-            <button
-              onClick={handleOrder}
-              className="mt-4 mb-8 w-full rounded-md bg-gray-900 px-6 py-3 font-medium text-white"
-            >
-              Place Order
-            </button>
           </div>
         </div>
       </div>

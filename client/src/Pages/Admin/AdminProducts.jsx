@@ -222,10 +222,10 @@ const AdminProducts = () => {
                               <td className="px-4 py-3 text-sm">
                                 <div
                                   className="relative hidde w-20 h-20
-                                 mr-3 rounded-full md:block"
+                                 mr-3 rounded-lg md:block"
                                 >
                                   <img
-                                    className="object-contain w-full h-full rounded-full"
+                                    className="object-contain p-2 w-full h-full rounded-lg"
                                     src={`${BaseUrl}/images/${product?.image}`}
                                     alt
                                     loading="lazy"

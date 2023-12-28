@@ -12,7 +12,6 @@ const UserSlice = createSlice({
       state.userDetails = action.payload;
     },
     setUserCart: (state, action) => {
-      console.log(action.payload);
       state.userCart = action.payload;
     },
   },

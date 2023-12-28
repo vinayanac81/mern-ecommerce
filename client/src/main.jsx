@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 // import "tw-elements-react/dist/css/tw-elements-react.min.css";
 import { store } from "./Toolkit/store.jsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+// import 'bootstrap/dist/css/bootstrap.min.css';
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>

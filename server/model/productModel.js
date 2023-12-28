@@ -4,16 +4,22 @@ const productSchema = mongoose.Schema({
   product_name: {
     type: String,
   },
-  description: {
+  display: {
     type: String,
   },
-  price: {
+  original_price: {
     type: Number,
   },
-  category: {
-    type: String,
+  rating: {
+    type: Number,
   },
-  sub_category: {
+  totalReviewRating: {
+    type: Number,
+  },
+  offer_price: {
+    type: Number,
+  },
+  brand: {
     type: String,
   },
   stock: {
@@ -24,6 +30,27 @@ const productSchema = mongoose.Schema({
   },
   disable: {
     type: Boolean,
+  },
+  date: {
+    type: Date,
+  },
+  ram: {
+    type: String,
+  },
+  rom: {
+    type: String,
+  },
+  battery: {
+    type: String,
+  },
+  processor: {
+    type: String,
+  },
+  front_camera: {
+    type: String,
+  },
+  back_camera: {
+    type: String,
   },
 });
 

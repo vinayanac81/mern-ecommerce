@@ -12,243 +12,211 @@ import brandModel from "../model/brandModel.js";
 import userModel from "../model/userModel.js";
 import coupenModel from "../model/coupenMode.js";
 import addressModel from "../model/addressModel.js";
+import latest5GModel from "../model/latest5GModel.js";
+import wishlistModel from "../model/wishlistModel.js";
+import nodemailer from "nodemailer";
+import reviewAndRating from "../model/reviewAndRating.js";
 dotenv.config();
-export const getProducts = async (req, res) => {
+export const getUserInfo = async (req, res) => {
   try {
+    const { userId } = req.body;
+    const userInfo = await userModel.findOne({ _id: new ObjectId(userId) });
+    res.status(200).json({ success: true, userInfo });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getLatestProducts = async (req, res) => {
+  try {
+    const latest5GProducts = await latest5GModel.aggregate([
+      {
+        $lookup: {
+          from: "products",
+          localField: "product_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      {
+        $project: {
+          product: { $arrayElemAt: ["$product", 0] },
+          _id: 1,
+        },
+      },
+    ]);
+    return res.json({ success: true, latest5GProducts });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getBrands = async (req, res) => {
+  try {
+    const brands = await brandModel.find({});
+    res.status(200).json({ success: true, brands });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getWishlist = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const wishlist = await wishlistModel.aggregate([
+      {
+        $match: {
+          user_id: new ObjectId(userId),
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "product_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      {
+        $project: {
+          product: { $arrayElemAt: ["$product", 0] },
+          _id: 1,
+        },
+      },
+    ]);
+    res.status(200).json({ success: true, wishlist });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getProductDetails = async (req, res) => {
+  try {
+    const { productId } = req.query;
+    const productData = await productModel.findOne({
+      _id: new ObjectId(productId),
+    });
+    res.status(200).json({ success: true, productData });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getBrandedProductsByNewestFirst = async (req, res) => {
+  try {
+    const { brandName } = req.query;
     const products = await productModel
-      .find({ stock: { $gt: 0 } })
-      .skip(0)
-      .limit(8);
-    return res.json({ success: true, products });
+      .find({
+        brand: brandName.toLowerCase(),
+      })
+      .sort({ date: -1 });
+    res.status(200).json({ success: true, products });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getBrandedProductsByLowToHigh = async (req, res) => {
+  try {
+    const { brandName } = req.query;
+    const products = await productModel
+      .find({
+        brand: brandName.toLowerCase(),
+      })
+      .sort({ offer_price: 1 });
+    res.status(200).json({ success: true, products });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getBrandedProductsByHighToLow = async (req, res) => {
+  try {
+    const { brandName } = req.query;
+    const products = await productModel
+      .find({
+        brand: brandName.toLowerCase(),
+      })
+      .sort({ offer_price: -1 });
+    res.status(200).json({ success: true, products });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const addProductToWishlist = async (req, res) => {
+  try {
+    const { productId, userId } = req.body;
+    await wishlistModel.create({
+      product_id: productId,
+      user_id: userId,
+    });
+    res.status(201).json({ success: true, message: "Added to wishlist" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const removeProductFromWishlist = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    await wishlistModel.deleteOne({
+      product_id: productId,
+    });
+    res.status(201).json({ success: true, message: "Removed from wishlist" });
   } catch (error) {
     console.log(error);
   }
 };
 export const addToCart = async (req, res) => {
   try {
-    const product = await productModel.findOne({
-      _id: new ObjectId(req.query.id),
+    const { id } = req.query;
+    const { userId } = req.body;
+    // const available = await cartModel.findOne({
+    //   user_id: new ObjectId(userId),
+    //   product_id: new ObjectId(id),
+    // });
+    // if (available === null) {
+    await cartModel.create({
+      user_id: userId,
+      product_id: id,
     });
-    const ifCart = await cartModel.findOne({ user_id: req.body.userId });
-    if (!ifCart) {
-      await cartModel.create({
-        user_id: req.body.userId,
-        cart_count: 1,
-        cart_products: [
-          {
-            product_id: product._id,
-            quantity: 1,
-            total_price: product.price,
-            product_name: product.product_name,
-            price: product.price,
-            stock: product.stock,
-            category: product.category,
-            sub_category: product.sub_category,
-            image: product.image,
-            description: product.description,
-          },
-        ],
-      });
-      return res.json({ success: true, cart_count: 1 });
-    } else {
-      const available = await cartModel.findOne({
-        cart_products: {
-          $elemMatch: { product_id: new ObjectId(req.query.id) },
-        },
-      });
-      if (available) {
-        await cartModel.updateOne(
-          {
-            user_id: req.body.userId,
-            "cart_products.product_id": new ObjectId(req.query.id),
-          },
-          {
-            $inc: { "cart_products.$.quantity": 1 },
-          }
-        );
-        const count = await cartModel.findOne({
-          user_id: new ObjectId(req.body.userId),
-        });
-        return res.json({
-          success: true,
-          cart_count: count.cart_count,
-          message: "Added to cart",
-        });
-      } else {
-        await cartModel.updateOne(
-          { user_id: req.body.userId },
-          {
-            $push: {
-              cart_products: {
-                product_id: product._id,
-                quantity: 1,
-                product_name: product.product_name,
-                price: product.price,
-                total_price: product.price,
-                stock: product.stock,
-                category: product.category,
-                sub_category: product.sub_category,
-                image: product.image,
-                description: product.description,
-              },
-            },
-          }
-        );
-        await cartModel.updateOne(
-          { user_id: req.body.userId },
-          { $inc: { cart_count: 1 } }
-        );
-        const count = await cartModel.findOne({
-          user_id: new ObjectId(req.body.userId),
-        });
-        return res.json({
-          success: true,
-          cart_count: count.cart_count ? count.cart_count : 0,
-          message: "Added to cart",
-        });
-      }
-    }
+    return res.json({ success: true, message: "Added to cart" });
+    // } else {
+    //   await cartModel.updateOne(
+    //     {
+    //       user_id: new ObjectId(userId),
+    //       product_id: new ObjectId(id),
+    //     },
+    //     {
+    //       $inc: { product_count: 1 },
+    //     }
+    //   );
+    // }
   } catch (error) {
     console.log(error);
   }
 };
-export const getAllCartProducts = async (req, res) => {
+export const updateFirstOrLastNameOrGender = async (req, res) => {
   try {
-    const cart = await cartModel.findOne({ user_id: req.body.userId });
-    const address = await addressModel.findOne({
-      user_id: new ObjectId(req.body.userId),
-    });
-    const wallet=await userModel.findOne({_id:new ObjectId(req.body.userId)}).select("wallet")
-    res.json({ success: true, cart, address,wallet });
-  } catch (error) {
-    console.log(error);
-  }
-};
-export const decrementQuantity = async (req, res) => {
-  try {
-    let { price, count, id } = req.query;
-    count = parseInt(count) - 1;
-    price = parseInt(price) * parseInt(count);
-    console.log(price, count);
-    await cartModel.updateOne(
+    const { userId, firstName, lastName, gender } = req.body;
+    await userModel.updateOne(
       {
-        user_id: req.body.userId,
-        "cart_products.product_id": new ObjectId(req.query.id),
-      },
-      {
-        $inc: { "cart_products.$.quantity": -1 },
-      }
-    );
-    await cartModel.updateOne(
-      {
-        user_id: req.body.userId,
-        "cart_products.product_id": new ObjectId(req.query.id),
+        _id: new ObjectId(userId),
       },
       {
         $set: {
-          "cart_products.$.total_price": price,
+          first_name: firstName,
+          last_name: lastName,
+          gender,
         },
       }
     );
-    const cart = await cartModel.findOne({ user_id: req.body.userId });
-    res.json({ success: true, cart });
+    const user = await userModel.findOne({ _id: new ObjectId(userId) });
+    res
+      .status(201)
+      .json({ success: true, user, message: "Updated successfully" });
   } catch (error) {
     console.log(error);
   }
 };
-export const incrementQuantity = async (req, res) => {
+let verifyEmailOtp;
+export const updateEmailAddress = async (req, res) => {
   try {
-    let { price, count, id } = req.query;
-    count = parseInt(count) + 1;
-    console.log(price, count);
-    price = parseInt(price) * parseInt(count);
-    console.log(price);
-    await cartModel.updateOne(
-      {
-        user_id: req.body.userId,
-        "cart_products.product_id": new ObjectId(req.query.id),
-      },
-      {
-        $inc: { "cart_products.$.quantity": 1 },
-      }
-    );
-    await cartModel.updateOne(
-      {
-        user_id: req.body.userId,
-        "cart_products.product_id": new ObjectId(req.query.id),
-      },
-      {
-        $set: {
-          "cart_products.$.total_price": price,
-        },
-      }
-    );
-    const cart = await cartModel.findOne({ user_id: req.body.userId });
-    res.json({ success: true, cart });
-  } catch (error) {
-    console.log(error);
-  }
-  0;
-};
-export const removeFromCart = async (req, res) => {
-  try {
-    await cartModel.updateOne(
-      {
-        user_id: req.body.userId,
-      },
-      {
-        $pull: {
-          cart_products: { product_id: new ObjectId(req.query.id) },
-        },
-      }
-    );
-    await cartModel.updateOne(
-      {
-        user_id: req.body.userId,
-      },
-      {
-        $inc: { cart_count: -1 },
-      }
-    );
-    const cart = await cartModel.findOne({ user_id: req.body.userId });
-    res.json({ success: true, message: "Item removed from cart", cart });
-  } catch (error) {
-    console.log(error);
-  }
-};
-export const getProduct = async (req, res) => {
-  try {
-    const product = await cartModel.findOne(
-      {
-        user_id: new ObjectId(req.body.userId),
-      },
-      {
-        cart_products: {
-          $elemMatch: { product_id: new ObjectId(req.query.id) },
-        },
-      }
-    );
-    const wallet=await userModel.findOne({_id:new ObjectId(req.body.userId)}).select("wallet")
-    const address = await addressModel.findOne({
-      user_id: new ObjectId(req.body.userId),
-    });
-    res.json({ success: true, product: product.cart_products[0], address ,wallet});
-  } catch (error) {
-    console.log(error);
-  }
-};
-export const order = async (req, res) => {
-  try {
-    let { paymentDetails, arr } = req.query;
-    console.log(paymentDetails);
-    const { product } = req.body;
-    // console.log(product);
-    let { cod, amount, after_discount, addressId, discount_price } =
-      paymentDetails;
-    let currentDate = new Date(new Date(new Date()).setUTCHours(0, 0, 0, 0));
-    function generateString(length) {
-      const characters =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const { email, userId } = req.body;
+    function generateOTP(length) {
+      const characters = "0123456789";
       let result = "";
       const charactersLength = characters.length;
       for (let i = 0; i < length; i++) {
@@ -258,307 +226,182 @@ export const order = async (req, res) => {
       }
       return result;
     }
-    let referral = generateString(16);
-    if (cod === "true") {
-      if (arr === "false") {
-        await orderModel.create({
-          order_id: referral,
-          user_id: req.body.userId,
-          total_price: parseInt(amount),
-          date: currentDate,
-          discount_price: parseInt(discount_price),
-          after_discount: parseInt(after_discount),
-          address_id: addressId,
-          products: [product],
-          order_status: "placed",
-          payment_status: "pending",
-          payment_method: "COD",
-        });
-        await cartModel.updateOne(
-          {
-            user_id: req.body.userId,
-          },
-          {
-            $pull: {
-              cart_products: { product_id: new ObjectId(product.product_id) },
-            },
-          }
-        );
-        await cartModel.updateOne(
-          {
-            user_id: req.body.userId,
-          },
-          {
-            $inc: { cart_count: -1 },
-          }
-        );
-        await productModel.updateOne(
-          { _id: new ObjectId(product.product_id) },
-          {
-            $inc: { stock: -product.quantity },
-          }
-        );
-        const cart = await cartModel.findOne({ user_id: req.body.userId });
-        res.json({ success: true, cart });
-      } else {
-        await orderModel.create({
-          order_id: referral,
-          user_id: req.body.userId,
-          total_price: parseInt(amount),
-          date: currentDate,
-          discount_price: parseInt(discount_price),
-          after_discount: parseInt(after_discount),
-          address_id: addressId,
-          products: product,
-          order_status: "placed",
-          payment_status: "pending",
-          payment_method: "COD",
-        });
-        await cartModel.deleteOne({
-          user_id: req.body.userId,
-        });
-        product.forEach(async (item) => {
-          await productModel.updateOne(
-            { _id: new ObjectId(item.product_id) },
-            {
-              $inc: { stock: -item.quantity },
-            }
-          );
-        });
-        const cart = await cartModel.findOne({ user_id: req.body.userId });
-        res.json({ success: true, cart });
-      }
-    } else {
-      let instance = new Razorpay({
-        key_id: process.env.KEY_ID,
-        key_secret: process.env.KEY_SECRET,
+    let otp = generateOTP(6);
+    verifyEmailOtp = otp;
+    const sendEmail = async (email) => {
+      const transporter = nodemailer.createTransport({
+        service: "Gmail",
+        port: 465,
+        secure: true,
+        auth: {
+          // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+          user: "vinudev2689@gmail.com",
+          pass: "gqpe ihzw bxvv srhf",
+        },
       });
-      let options = {
-        amount: parseInt(after_discount) * 100,
-        currency: "INR",
-      };
-      instance.orders.create(options, (err, order) => {
-        if (err) {
-          console.log(err);
-          return res.send({ code: 500, message: "Server Error" });
+      // async..await is not allowed in global scope, must use a wrapper
+      async function main() {
+        // send mail with defined transport object
+        console.log(email);
+        const info = await transporter.sendMail({
+          from: "5G WORLD", // sender address
+          to: email, // list of receivers
+          subject: "Email verification", // Subject line
+          text: "Hello world?", // plain text body
+          html: `<b>ENTER OTP ${otp}</b>`, // html body
+        });
+      }
+      // console.log("Message sent: %s", info.messageId);
+      main().catch(console.error);
+    };
+    await sendEmail(email);
+    res.status(200).json({ success: true, message: "OTP Sented successfully" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const verifyOtpForUpdateEmailAddress = async (req, res) => {
+  try {
+    const { userId, otp, email } = req.body;
+    if (otp === verifyEmailOtp) {
+      await userModel.updateOne(
+        { _id: new ObjectId(userId) },
+        {
+          $set: {
+            email,
+          },
         }
-        return res.send({
-          code: 200,
-          message: "order created",
-          data: order,
-          success: true,
-        });
-      });
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-export const createOrder = async (req, res) => {
-  try {
-    let { orderId, paymentDetails, arr } = req.query;
-    let { userId, product } = req.body;
-    let { amount, after_discount, addressId, discount_price } = paymentDetails;
-    let currentDate = new Date(new Date(new Date()).setUTCHours(0, 0, 0, 0));
-    if (arr === "false") {
-      await orderModel.create({
-        order_id: orderId,
-        user_id: req.body.userId,
-        total_price: parseInt(amount),
-        date: currentDate,
-        products: [product],
-        discount_price: discount_price,
-        after_discount: after_discount,
-        address_id: addressId,
-        order_status: "payment pending",
-        payment_status: "pending",
-        payment_method: "ONLINE",
-      });
-      res.status(200).json({ success: true, message: "success" });
+      );
+      const user = await userModel.findOne({ _id: new ObjectId(userId) });
+      res.json({ success: true, user, message: "Email updated" });
     } else {
-      await orderModel.create({
-        order_id: orderId,
-        user_id: req.body.userId,
-        total_price: parseInt(amount),
-        date: currentDate,
-        products: product,
-        discount_price: discount_price,
-        after_discount: after_discount,
-        address_id: addressId,
-        order_status: "payment pending",
-        payment_status: "pending",
-        payment_method: "ONLINE",
-      });
-      res.status(200).json({ success: true, message: "success" });
+      res.json({ incorrectOtp: true, message: "Incorrect OTP" });
     }
   } catch (error) {
     console.log(error);
   }
 };
-export const verify = async (req, res) => {
+export const getCartProductsData = async (req, res) => {
   try {
-    let { userId, response } = req.body;
-    let { product, arr } = req.query;
-    const body =
-      response.razorpay_order_id + "|" + response.razorpay_payment_id;
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.KEY_SECRET)
-      .update(body.toString())
-      .digest("hex");
-    if (expectedSignature === req.body.response.razorpay_signature) {
-      if (arr === "false") {
-        await orderModel.updateOne(
-          { order_id: response.razorpay_order_id },
-          {
-            $set: {
-              order_status: "Placed",
-              payment_status: "success",
-            },
-          }
-        );
-        await cartModel.updateOne(
-          {
-            user_id: userId,
-          },
-          {
-            $pull: {
-              cart_products: { product_id: new ObjectId(product.product_id) },
-            },
-          }
-        );
-        await cartModel.updateOne(
-          {
-            user_id: userId,
-          },
-          {
-            $inc: { cart_count: -1 },
-          }
-        );
-        await productModel.updateOne(
-          { _id: new ObjectId(product.product_id) },
-          {
-            $inc: { stock: -product.quantity },
-          }
-        );
-        const cart = await cartModel.findOne({ user_id: req.body.userId });
-        res.json({ success: true, cart, message: "Payment successfull" });
-      } else {
-        await cartModel.deleteOne({
-          user_id: req.body.userId,
-        });
-        await orderModel.updateOne(
-          { order_id: response.razorpay_order_id },
-          {
-            $set: {
-              order_status: "Placed",
-              payment_status: "Success",
-            },
-          }
-        );
-        product.forEach(async (item, id) => {
-          await productModel.updateOne(
-            { _id: new ObjectId(item.product_id) },
-            {
-              $inc: { stock: -item.quantity },
-            }
-          );
-        });
-        const cart = await cartModel.findOne({ user_id: req.body.userId });
-        res.json({ success: true, cart });
-      }
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-export const getBookingList = async (req, res) => {
-  try {
-    const bookingList = await orderModel.aggregate([
+    const { userId } = req.body;
+    const cartProducts = await cartModel.aggregate([
       {
         $match: {
-          user_id: new ObjectId(req.body.userId),
+          user_id: new ObjectId(userId),
         },
       },
       {
         $lookup: {
-          from: "addresses",
-          localField: "address_id",
+          from: "products",
+          localField: "product_id",
           foreignField: "_id",
-          as: "address",
+          as: "product",
         },
       },
       {
         $project: {
-          address: { $arrayElemAt: ["$address", 0] },
+          product: { $arrayElemAt: ["$product", 0] },
           _id: 1,
-          order_id: 1,
-          user_id: 1,
-          discount_price: 1,
-          after_discount: 1,
-          total_price: 1,
-          date: 1,
-          products: 1,
-          order_status: 1,
-          payment_status: 1,
-          payment_method: 1,
+          product_count: 1,
         },
       },
     ]);
-    res.json({ success: true, bookingList });
+    res.json({ success: true, cartProducts });
   } catch (error) {
     console.log(error);
   }
 };
-export const getBookedDetail = async (req, res) => {
-  try {
-    console.log(req.query.orderId);
-    const data = await orderModel.findOne({
-      user_id: new ObjectId(req.body.userId),
-    });
-
-    res.json({ success: true, bookedProduct: data });
-  } catch (error) {
-    console.log(error);
-  }
-};
-export const getNavbarData = async (req, res) => {
-  try {
-    const category = await categoryModel.find({});
-    const brands = await brandModel.find({});
-    res.json({ success: true, category, brands });
-  } catch (error) {
-    console.log(error);
-  }
-};
-export const getBrandProducts = async (req, res) => {
+export const getCartSingleProductData = async (req, res) => {
   try {
     const { userId } = req.body;
-    let { category } = req.query;
-    category = category.toLowerCase();
-    const data = await productModel.aggregate([
+    const { productId } = req.query;
+    console.log(req.body);
+    const productData = await cartModel.aggregate([
       {
         $match: {
-          sub_category: category,
+          user_id: new ObjectId(userId),
+          product_id: new ObjectId(productId),
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "product_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      {
+        $project: {
+          product: { $arrayElemAt: ["$product", 0] },
+          _id: 1,
+          product_count: 1,
         },
       },
     ]);
-    res.json({ success: true, products: data });
+    res.json({ success: true, productData });
   } catch (error) {
     console.log(error);
   }
 };
-export const filterByCategory = async (req, res) => {
+export const getAddressData = async (req, res) => {
   try {
-    let { category } = req.query;
-    category = category.toLowerCase();
-    const data = await productModel.aggregate([
+    const { userId } = req.body;
+    const address = await addressModel.find({
+      user_id: new ObjectId(userId),
+    });
+    if (address.length === 0) {
+      res.json({ success: true, noAddress: true });
+    } else {
+      res.json({ success: true, address });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const decrementQuantity = async (req, res) => {
+  try {
+    let { productId, userId } = req.body;
+    await cartModel.updateOne(
       {
-        $match: {
-          category: category,
-        },
+        user_id: new ObjectId(userId),
+        product_id: new ObjectId(productId),
       },
-    ]);
-    res.json({ success: true, products: data });
+      {
+        $inc: { product_count: -1 },
+      }
+    );
+    res.json({ success: true, message: "Product decremented" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const incrementQuantity = async (req, res) => {
+  try {
+    let { productId, userId } = req.body;
+    await cartModel.updateOne(
+      {
+        user_id: new ObjectId(userId),
+        product_id: new ObjectId(productId),
+      },
+      {
+        $inc: { product_count: 1 },
+      }
+    );
+    res.json({ success: true, message: "Product incremented" });
+  } catch (error) {
+    console.log(error);
+  }
+  0;
+};
+export const removeFromCart = async (req, res) => {
+  try {
+    const { productId, userId } = req.body;
+    await cartModel.deleteOne({
+      user_id: userId,
+      product_id: productId,
+    });
+    res.json({ success: true, message: "Item removed from cart" });
   } catch (error) {
     console.log(error);
   }
@@ -571,32 +414,13 @@ export const getAllProducts = async (req, res) => {
     console.log(error);
   }
 };
-export const updateProfilePic = async (req, res) => {
-  try {
-    const { userId } = req.query;
-    console.log(userId, req?.file?.filename);
-    const file = req?.file?.filename;
-    await userModel.updateOne(
-      { _id: new ObjectId(userId) },
-      {
-        $set: {
-          image: file,
-        },
-      }
-    );
-    const user = await userModel.findOne({ _id: new ObjectId(userId) });
-    res.json({ success: true, message: "Profile Pic Updated...", user });
-  } catch (error) {
-    console.log(error);
-  }
-};
 export const applyCoupon = async (req, res) => {
   try {
     let { couponCode, amount } = req.body;
-    // console.log(amount);
-    couponCode = couponCode.toUpperCase();
-    const data = await coupenModel.findOne({ code: couponCode });
-    // console.log(data);
+    const data = await coupenModel.findOne({ code: couponCode.toUpperCase() });
+    if (data === null) {
+      return res.json({ invalidCoupon: true, message: "Invalid coupon" });
+    }
     let date = data.expiry_date;
     let minimumPurchaseAmount = data.min_amount;
     if (minimumPurchaseAmount >= amount) {
@@ -607,12 +431,9 @@ export const applyCoupon = async (req, res) => {
     }
     let discount = data.discount;
     let maximumDiscout = data.max_discount;
-    console.log(data);
     discount = parseInt(discount);
-    // console.log(date);
     let expDate = new Date(date).getTime();
     let currentDate = new Date().getTime();
-    // console.log(expDate,currentDate);
     if (currentDate <= expDate) {
       let totalAmount = ((amount / 100) * discount).toFixed(0);
       if (totalAmount > maximumDiscout) {
@@ -636,44 +457,19 @@ export const applyCoupon = async (req, res) => {
     console.log(error);
   }
 };
-export const getAddress = async (req, res) => {
-  try {
-    const { userId } = req.body;
-    const address = await addressModel.findOne({
-      user_id: new ObjectId(userId),
-    });
-    if (!address) {
-      res.json({ noAddress: true });
-    } else {
-      res.json({ success: true, address });
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
 export const addAddress = async (req, res) => {
-  let { address, userId } = req.body;
-  let {
-    firstName,
-    lastName,
-    email,
-    phoneNumber,
+  let { addressData, userId } = req.body;
+  let { name, mobileNumber, pincode, place, district, state, address } =
+    addressData;
+  await addressModel.create({
+    user_id: userId,
+    name: name,
+    address: address,
+    state: state,
+    mobile_number: mobileNumber,
     pincode,
     place,
     district,
-    state,
-  } = address;
-  await addressModel.create({
-    user_id: userId,
-    first_name: firstName.toLowerCase(),
-    last_name: lastName.toLowerCase(),
-    email: email.toLowerCase(),
-    address: address.address.toLowerCase(),
-    state: state.toLowerCase(),
-    phone_number: phoneNumber,
-    pincode,
-    place: place.toLowerCase(),
-    district: district.toLowerCase(),
   });
   res.json({ success: true, message: "Address added successfully" });
 };
@@ -771,18 +567,6 @@ export const getReferralData = async (req, res) => {
     console.log(error);
   }
 };
-export const getSingleProductData = async (req, res) => {
-  try {
-    const { productId } = req.query;
-    console.log(req.query);
-    const productData = await productModel.findOne({
-      _id: new ObjectId(productId),
-    });
-    res.json({ success: true, productData });
-  } catch (error) {
-    console.log(error);
-  }
-};
 export const getOrderDetails = async (req, res) => {
   try {
     const orderdata = await orderModel.aggregate([
@@ -825,6 +609,105 @@ export const getOrderDetails = async (req, res) => {
       },
     ]);
     res.json({ success: true, orderdata });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getBookingList = async (req, res) => {
+  try {
+    const bookingList = await orderModel.aggregate([
+      {
+        $match: {
+          user_id: new ObjectId(req.body.userId),
+        },
+      },
+      {
+        $lookup: {
+          from: "addresses",
+          localField: "address_id",
+          foreignField: "_id",
+          as: "address",
+        },
+      },
+      {
+        $project: {
+          address: { $arrayElemAt: ["$address", 0] },
+          _id: 1,
+          after_discount_final_amount: 1,
+          date: 1,
+          products: 1,
+          order_status: 1,
+        },
+      },
+    ]);
+    res.json({ success: true, bookingList });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getBookedDetail = async (req, res) => {
+  try {
+    console.log(req.query.orderId);
+    const data = await orderModel.findOne({
+      user_id: new ObjectId(req.body.userId),
+    });
+
+    res.json({ success: true, bookedProduct: data });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const addReviewRating = async (req, res) => {
+  try {
+    const { review, rating, userId, productId } = req.body;
+    await reviewAndRating.create({
+      user_id: userId,
+      product_id: productId,
+      rating,
+      review,
+    });
+    const allReviewRatings = await reviewAndRating.find({
+      product_id: productId,
+    });
+    let average = allReviewRatings.reduce((acc, data) => {
+      return acc + data.rating / allReviewRatings.length;
+    }, 0);
+    await productModel.updateOne(
+      { _id: new ObjectId(productId) },
+      {
+        $set: {
+          rating: average.toFixed(1),
+          totalReviewRating: allReviewRatings.length,
+        },
+      }
+    );
+    res.status(201).json({
+      success: true,
+      message: "Thank you so much. Your review has been saved.",
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getReviewrating = async (req, res) => {
+  try {
+    const { productId } = req.query;
+    const reviewRatings = await reviewAndRating.aggregate([
+      {
+        $match: {
+          product_id: new ObjectId(productId),
+        },
+      },
+    ]);
+    res.status(200).json({ success: true, reviewRatings });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getCoupons = async (req, res) => {
+  try {
+    const coupons = await coupenModel.find({});
+    res.json({ success: true, coupons });
   } catch (error) {
     console.log(error);
   }

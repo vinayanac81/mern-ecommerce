@@ -5,23 +5,30 @@ import productModel from "../model/productModel.js";
 import mongoose from "mongoose";
 import userModel from "../model/userModel.js";
 import coupenModel from "../model/coupenMode.js";
+import latest5GModel from "../model/latest5GModel.js";
 const ObjectId = mongoose.Types.ObjectId;
 export const addProduct = async (req, res) => {
   try {
     let { productData } = req.query;
-    console.log(productData);
-    productData.price = parseInt(productData.price);
-    productData.stock = parseInt(productData.stock);
-    console.log(req.file.filename);
+    // productData.originalprice = parseInt(productData.price);
+    // productData.stock = parseInt(productData.stock);
+    // console.log(req.file.filename);
     await productModel.create({
       product_name: productData.productName,
-      price: productData.price,
+      original_price: productData.originalPrice,
+      offer_price: productData.offerPrice,
       image: req.file.filename,
       stock: productData.stock,
-      description: productData.description,
-      category: productData.category,
-      sub_category: productData.subCategory,
+      display: productData.display,
+      brand: productData.brand,
       disable: false,
+      date: Date.now(),
+      front_camera: productData.front,
+      battery: productData.battery,
+      rom: productData.ROM,
+      ram: productData.RAM,
+      processor: productData.processor,
+      back_camera: productData.back,
     });
     return res.json({ success: true, message: "Product added successfully" });
   } catch (error) {
@@ -790,6 +797,42 @@ export const getOrderDetails = async (req, res) => {
       },
     ]);
     res.json({ success: true, orderdata });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getLatest5GMobiles = async (req, res) => {
+  try {
+    const allProducts = await productModel.find({}).sort({ date: -1 });
+    const latest = await latest5GModel.aggregate([
+      {
+        $lookup: {
+          from: "products",
+          localField: "product_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      {
+        $project: {
+          product: { $arrayElemAt: ["$product", 0] },
+          _id: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json({ allProducts, latest, success: true });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const addToLatestMobiles = async (req, res) => {
+  try {
+    const { id } = req.body;
+    await latest5GModel.create({
+      product_id: id,
+    });
+    res.status(201).json({ success: true, message: "Added Successfully" });
   } catch (error) {
     console.log(error);
   }
