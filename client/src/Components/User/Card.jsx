@@ -83,8 +83,7 @@ const Card = ({ products, isRowBased }) => {
                       </h5>
                     </a>
                     <p className="mb-1 text-sm font-normal uppercase text-gray-400 ">
-                      Price : {product?.product?.price}{" "}
-                      <span className="lowercase">Rupees</span>
+                      Price : {product?.product?.offer_price}{" "}
                     </p>
                     <p className="mb-1 text-sm font-normal uppercase text-gray-400 ">
                       Stock: {product?.product?.stock}{" "}
@@ -168,14 +167,12 @@ const Card = ({ products, isRowBased }) => {
                 </h5>
               </a>
               <p className="mb-1 text-sm font-normal uppercase text-gray-700 dark:text-gray-400">
-                Price : {products[currentIndex]?.product?.price}{" "}
-                <span className="lowercase">Rupees</span>
+                Price : {products[currentIndex]?.product?.offer_price}{" "}
               </p>
               <p className="mb-1 text-sm font-normal uppercase text-gray-700 dark:text-gray-400">
                 Stock: {products[currentIndex]?.product?.stock}{" "}
                 <span className="lowercase">Pieces</span>
               </p>
-           
             </div>
           </div>
         </div>

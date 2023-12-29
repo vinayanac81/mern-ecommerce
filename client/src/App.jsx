@@ -12,19 +12,11 @@ import AdminCategory from "./Pages/Admin/AdminCategory";
 import Brand from "./Pages/Admin/Brand";
 import Login from "./Pages/User/Login";
 import Signup from "./Pages/User/Signup";
-import Cart from "./Pages/User/Cart";
 import Checkout from "./Pages/User/Checkout";
 import PaymentSuccess from "./Pages/User/PaymentSuccess";
-import Booking from "./Pages/User/Booking";
-import BookedProduct from "./Pages/User/BookedProduct";
 import Orders from "./Pages/Admin/Orders";
-import Shop from "./Pages/User/Shop";
-import Brands from "./Pages/User/Brands";
-import Category from "./Pages/User/Category";
-import UserProfile from "./Pages/User/UserProfile";
 import Coupen from "./Pages/Admin/Coupen";
 import AddCoupen from "./Pages/Admin/AddCoupen";
-import AddAddress from "./Pages/User/AddAddress";
 import {
   AdminAuth,
   AdminLoginAuth,
@@ -32,9 +24,6 @@ import {
   UserLoginAuth,
 } from "./Authorization/Authorization";
 import ViewUserProfile from "./Pages/Admin/ViewUserProfile";
-import ViewAddress from "./Pages/User/ViewAddress";
-import EditAddress from "./Pages/User/EditAddress";
-import UserViewProduct from "./Pages/User/UserViewProduct";
 import OrderViewPage from "./Pages/Admin/OrderViewPage";
 import UserOrderViewPage from "./Pages/User/UserOrderViewPage";
 import { BrandedMobiles } from "./Pages/User/BrandedMobiles";
@@ -54,19 +43,13 @@ function App() {
         <Routes>
           {/* User Routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/filter/brand/:type" element={<Brands />} />
-          <Route path="/filter/category/:type" element={<Category />} />
-          <Route path="/shop" element={<Shop />} />
           <Route path="/mobiles/:brand" element={<BrandedMobiles />} />
           <Route path="/mobile/:name/:id" element={<ViewMobile />} />
-          <Route path="/product/view/:id" element={<UserViewProduct />} />
           <Route element={<UserLoginAuth />}>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
           </Route>
           <Route element={<UserAuth />}>
-            <Route path="/add-address" element={<AddAddress />} />
-            <Route path="/cart" element={<Cart />} />
             <Route path="/viewcart" element={<ViewCart />} />
             <Route path="/account" element={<Account />} />
             <Route path="/account/orders" element={<UserOrders />} />
@@ -76,9 +59,6 @@ function App() {
             <Route path="/account/addresses" element={<Addresses />} />
             <Route path="/checkout/:id" element={<Checkout />} />
             <Route path="/order-success" element={<PaymentSuccess />} />
-            <Route path="/booking" element={<Booking />} />
-            <Route path="/view-address/:id" element={<ViewAddress />} />
-            <Route path="/edit-address/:id" element={<EditAddress />} />
             <Route path="/order/view/:id" element={<UserOrderViewPage />} />
           </Route>
 

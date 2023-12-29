@@ -14,7 +14,7 @@ const AdminDashboard = () => {
   const [loading, setloading] = useState(true);
   const [totalOrders, settotalOrders] = useState("");
   const [totalUsers, settotalUsers] = useState("");
-  const [totalAmount, settotalAmount] = useState("");
+  const [totalAmount, settotalAmount] = useState(200000);
   const [payments, setpayments] = useState([]);
   const [incomeData, setincomeData] = useState({
     labels: RevenueData.map((data) => data.month),
@@ -22,7 +22,7 @@ const AdminDashboard = () => {
       {
         label: "Income Generated",
         data: RevenueData.map((data) => data.Profit),
-        backgroundColor:["red","green","blue","yellow","cyan","black"]
+        backgroundColor: ["red", "green", "blue", "yellow", "cyan", "black"],
       },
     ],
   });
@@ -36,7 +36,7 @@ const AdminDashboard = () => {
       const { data } = await AxiosInstance.get("/admin/get-dashboard-data");
       console.log(data);
       setloading(false);
-      settotalAmount(data?.amount);
+      // settotalAmount(data?.amount);
       settotalOrders(data?.totalOrders);
       settotalUsers(data?.totalUsers);
       setpayments(data?.payments);
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
   };
   return (
     <div>
-      <div x-data="setup()" className="{ 'dark': isDark }">
+      <div>
         <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-white dark:bg-gray-700 text-black dark:text-white">
           <Header />
           <LeftLayout active="dashboard" />
@@ -83,29 +83,6 @@ const AdminDashboard = () => {
           )}
           <div className="h-full ml-14 mt-14 mb-10 md:ml-64">
             <div className="grid  grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 p-4 gap-4">
-              {/* <div className="bg-blue-500 dark:bg-gray-800 shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-blue-600 dark:border-gray-600 text-white font-medium group">
-                <div className="flex justify-center items-center w-14 h-14 bg-white rounded-full transition-all duration-300 transform group-hover:rotate-12">
-                  <svg
-                    width={30}
-                    height={30}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    className="stroke-current text-blue-800 dark:text-gray-800 transform transition-transform duration-500 ease-in-out"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl">1,257</p>
-                  <p>Visitors</p>
-                </div>
-              </div> */}
               <div className="bg-blue-500 dark:bg-gray-800 shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-blue-600 dark:border-gray-600 text-white font-medium group">
                 <div className="flex justify-center items-center w-14 h-14 bg-white rounded-full transition-all duration-300 transform group-hover:rotate-12">
                   <svg
@@ -175,164 +152,8 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-            <div style={{height:540}} className="flex justify-center">
+            <div style={{ height: 540 }} className="flex justify-center">
               <BarChart chartData={incomeData} />
-            </div>
-            <div className="mt-4 mx-4">
-              <div className="flex mb-4 uppercase text-md justify-center ">
-                <h2>Today orders</h2>
-              </div>
-              <div className="w-full overflow-hidden rounded-lg shadow-xs">
-                <div className="w-full overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
-                        <th className="px-4 py-3">Client</th>
-                        <th className="px-4 py-3">Amount</th>
-                        <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3">Date</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
-                      {payments.map((data) => {
-                        return (
-                          <>
-                            <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
-                              <td className="px-4 py-3">
-                                <div className="flex items-center text-sm">
-                                  <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
-                                    {data?.user?.image !== "" ? (
-                                      <>
-                                        <Avatar
-                                          alt="User settings"
-                                          img={`${BaseUrl}/images/${data?.user?.image}`}
-                                          rounded
-                                        />
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Avatar rounded />
-                                      </>
-                                    )}
-
-                                    <div
-                                      className="absolute inset-0 rounded-full shadow-inner"
-                                      aria-hidden="true"
-                                    />
-                                  </div>
-                                  <div>
-                                    <p className="font-semibold">
-                                      {data?.user?.first_name}{" "}
-                                      {data?.user?.last_name}
-                                    </p>
-                                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                                      {data?.user?.email}
-                                    </p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-4 py-3 text-sm">
-                                {data?.after_discount}
-                              </td>
-                              <td className="px-4 py-3 text-xs">
-                                <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
-                                  {" "}
-                                  {data?.payment_status}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 text-sm">
-                                {new Date(data?.date).toString().slice(0, 15)}
-                              </td>
-                            </tr>
-                          </>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
-                  <span className="flex items-center col-span-3">
-                    {" "}
-                    Showing 1 - 10 of 100{" "}
-                  </span>
-                  <span className="col-span-2" />
-                  <span className="flex col-span-4 mt-2 sm:mt-auto sm:justify-end">
-                    <nav aria-label="Table navigation">
-                      <ul className="inline-flex items-center">
-                        <li>
-                          <button
-                            className="px-3 py-1 rounded-md rounded-l-lg focus:outline-none focus:shadow-outline-purple"
-                            aria-label="Previous"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              className="w-4 h-4 fill-current"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                                clipRule="evenodd"
-                                fillRule="evenodd"
-                              />
-                            </svg>
-                          </button>
-                        </li>
-                        <li>
-                          <button className="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                            1
-                          </button>
-                        </li>
-                        <li>
-                          <button className="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                            2
-                          </button>
-                        </li>
-                        <li>
-                          <button className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 border border-r-0 border-blue-600 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple">
-                            3
-                          </button>
-                        </li>
-                        <li>
-                          <button className="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                            4
-                          </button>
-                        </li>
-                        <li>
-                          <span className="px-3 py-1">...</span>
-                        </li>
-                        <li>
-                          <button className="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                            8
-                          </button>
-                        </li>
-                        <li>
-                          <button className="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                            9
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className="px-3 py-1 rounded-md rounded-r-lg focus:outline-none focus:shadow-outline-purple"
-                            aria-label="Next"
-                          >
-                            <svg
-                              className="w-4 h-4 fill-current"
-                              aria-hidden="true"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                clipRule="evenodd"
-                                fillRule="evenodd"
-                              />
-                            </svg>
-                          </button>
-                        </li>
-                      </ul>
-                    </nav>
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </div>

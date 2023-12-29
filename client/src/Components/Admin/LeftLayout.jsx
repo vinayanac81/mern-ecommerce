@@ -56,7 +56,7 @@ const LeftLayout = ({ active }) => {
                 href="/admin/dashboard"
                 className="relative flex flex-row items-center h-11 focus:outline-none hover:bg-blue-800 dark:hover:bg-gray-600 text-white-600 hover:text-white-800 border-l-4 border-transparent hover:border-blue-500 dark:hover:border-gray-800 pr-6"
               >
-                <span className="inline-flex justify-center items-center ml-4">
+                <span className="inline-flex justify-center items-center ml-4 ">
                   <svg
                     className={`w-5 h-5 ${
                       activeState.dashboard && " text-blue-600"
@@ -80,7 +80,7 @@ const LeftLayout = ({ active }) => {
                       dashboard: true,
                     })
                   }
-                  className={`w-5 ml-2 h-5 ${
+                  className={`w-5 ml-4 md:ml-2 h-5 ${
                     activeState.dashboard && " text-blue-600"
                   }`}
                 >

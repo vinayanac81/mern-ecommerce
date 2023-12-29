@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import NavBar from "../../Components/User/NavBar";
 import { useParams } from "react-router-dom";
 import AxiosUserInstance from "./AxiosUserInstance";
 import { Avatar, Card } from "flowbite-react";

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import NavBar from "../../Components/User/NavBar";
 import AxiosUserInstance from "./AxiosUserInstance";
 import { BaseUrl } from "../../Constants";
 

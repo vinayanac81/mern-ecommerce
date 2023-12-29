@@ -1,13 +1,13 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import NavBar from "../../Components/User/NavBar";
+import { Header } from "../../Components/User/Header";
 const PaymentSuccess = () => {
   const location = useLocation();
   const { method } = location.state;
   console.log(method);
   return (
     <div>
-      <NavBar/>
+      <Header/>
       <div className="bg-gray-100 flex justify-center items-center h-screen">
         <div className="bg-white p-6  md:mx-auto">
           <svg

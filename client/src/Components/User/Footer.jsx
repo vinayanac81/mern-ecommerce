@@ -7,15 +7,15 @@ import { Link } from "react-router-dom";
 export const Footer = () => {
   return (
     <div className="">
-      <div className="gap-20 text-white px-28 justify-between flex">
-        <div className="w-[25%]">
+      <div className="md:gap-20  gap-0 text-white md:px-28 justify-between flex flex-col md:flex-row md:flex">
+        <div className="md:w-[25%] px-10 md:10 md:border-none pb-4 ">
           <h2 className="mb-5 font-extrabold">About Us</h2>
           <p>
             Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto
             sunt recusandae natus placeat doloremque, excepturi praesentium
           </p>
         </div>
-        <div className="w-[25%]">
+        <div className="md:w-[25%] px-10 md:10 md:border-none pb-4 ">
           <h2 className="mb-5 font-extrabold">Newsletter</h2>
           <p className="mb-5">Stay update with our latest</p>
           <div className="flex">
@@ -31,14 +31,14 @@ export const Footer = () => {
             </button>
           </div>
         </div>
-        <div className="w-[25%]">
+        <div className="md:w-[25%] px-10 md:10 md:border-none pb-4 ">
           <h2 className="mb-5 font-extrabold">Mail Us</h2>
           <p className="mb-5">
             5G WORLD Private Limited, Pattambi Road, Edappal, Malappuram,
             579678, Kerala, India
           </p>
         </div>
-        <div className="w-[25%]">
+        <div className="md:w-[25%] px-10 md:10 md:border-none pb-4 ">
           <h2 className="mb-5 font-extrabold">Follow Us</h2>
           <p className="mb-5">Let us be social</p>
           <div className="flex gap-2 text-2xl">

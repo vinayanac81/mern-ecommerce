@@ -20,8 +20,8 @@ const Header = () => {
           />
           <span className="hidden md:block">ADMIN</span>
         </div>
-        <div className="flex justify-between items-center h-14 bg-blue-800 dark:bg-gray-800 header-right">
-          <div className="bg-white rounded flex items-center w-full max-w-xl mr-4 p-2 shadow-sm border border-gray-200">
+        <div className="flex justify-between items-center h-14  bg-blue-800 dark:bg-gray-800 header-right">
+          <div className="bg-white rounded flex items-center w-full max-w-xl mr-4 p-1  shadow-sm border border-gray-200">
             <button className="outline-none focus:outline-none">
               <svg
                 className="w-5 text-gray-600 h-5 cursor-pointer"
@@ -40,7 +40,7 @@ const Header = () => {
               name
               id
               placeholder="Search by user with user id...."
-              className="w-full pl-3 text-sm text-black outline-none focus:outline-none bg-transparent"
+              className="w-full  border-none pl-3 text-sm text-black outline-none focus:outline-none bg-transparent"
             />
           </div>
           <ul className="flex items-center">

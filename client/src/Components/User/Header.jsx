@@ -17,9 +17,12 @@ import { FaHeart } from "react-icons/fa";
 import { SideBar } from "./SideBar";
 import { FaMobile } from "react-icons/fa";
 import AxiosUserInstance from "../../Pages/User/AxiosUserInstance";
-export const Header = () => {
+import { useMediaQuery } from "../../Hooks/MediaQuery";
+import { BiLogIn } from "react-icons/bi";
+export const Header = ({closeLeftBar}) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const isMediumScreen = useMediaQuery("(min-width: 768px)");
   const { userDetails, userCart } = useSelector((state) => state.user);
   const [showMenu, setShowMenu] = useState(false);
   const [products, setproducts] = useState([]);
@@ -97,8 +100,8 @@ export const Header = () => {
   return (
     <>
       <div
-        // onClick={() => setShowSideBar(!showSideBar)}
-        className="flex relative  justify-between px-2  md:px-48  bg-white h-16 w-full"
+       
+        className="flex relative  justify-between px-8  md:px-48  bg-white h-16 w-full"
       >
         {showSideBar && (
           <>
@@ -106,12 +109,6 @@ export const Header = () => {
           </>
         )}
         <div className="flex cursor-pointer gap-4 md:gap-10 items-center w-[60%] ">
-          <div
-            onClick={() => setShowSideBar(true)}
-            className="text-gray-500 md:hidden text-3xl"
-          >
-            <IoMdMenu />
-          </div>
           <div className="flex  items-center justify-center">
             <Link to={"/"}>
               <span className="self-center flex flex-col items-center text-white hover:text-gray-300 cursor-pointer whitespace-nowrap text-md md:text-xl font-extrabold ">
@@ -135,45 +132,48 @@ export const Header = () => {
             </span>
           </div>
         </div>
-        <div className="flex gap-5 md:gap-14 items-center ">
-          <Link to={"/viewcart"}>
-            <div className="text-blue-600 hover:text-blue-800 cursor-pointer relative text-3xl">
-              <FaShoppingCart />
-              <div
-                style={{
-                  top: "-6px",
-                  right: "-5px",
-                  position: "absolute",
-                  borderRadius: "5px",
-                }}
-                className="bg-red-600 h-4 w-4 border   text-sm text-center  "
-              >
-                <span
+        <div className="flex  gap-3 md:gap-14 items-center ">
+          <div className="hidden md:block">
+            <Link to={"/viewcart"}>
+              <div className="text-blue-600 hover:text-blue-800 cursor-pointer relative text-3xl">
+                <FaShoppingCart />
+                <div
                   style={{
-                    top: "-3px",
-                    fontSize: "12px",
+                    top: "-6px",
+                    right: "-5px",
                     position: "absolute",
-                    right: "3.5px",
+                    borderRadius: "5px",
                   }}
-                  className="text-white "
+                  className="bg-red-600 h-4 w-4 border   text-sm text-center  "
                 >
-                  {userDetails.email ? userCart : 0}
-                </span>
+                  <span
+                    style={{
+                      top: "-3px",
+                      fontSize: "12px",
+                      position: "absolute",
+                      right: "3.5px",
+                    }}
+                    className="text-white "
+                  >
+                    {userDetails.email ? userCart : 0}
+                  </span>
+                </div>
               </div>
-            </div>
-          </Link>
+            </Link>
+          </div>
 
           <div>
             <button
               onMouseEnter={() => setShowMobileBrands(true)}
               onMouseLeave={() => setShowMobileBrands(false)}
               type="button"
-              className="inline-flex text-md items-center w-full justify-center gap-x-1 rounded-md  text-blue-600 px-3 py-2  font-semibold   shadow-sm "
+              className="inline-flex text-md items-center w-full justify-center gap-x-1 rounded-md  text-blue-600 px- py-2  font-semibold   shadow-sm "
             >
-              <span>
+              <span style={{ fontSize: isMediumScreen ? "" : "22px" }}>
                 <FaMobile />
               </span>
-              Mobiles
+              <span className="md:block hidden"> Mobiles</span>
+
               <svg
                 className="-mr-1 h-5 w-5 text-blue-600"
                 viewBox="0 0 20 20"
@@ -245,35 +245,48 @@ export const Header = () => {
                     type="button"
                     className="inline-flex text-md items-center w-full justify-center gap-x-1 rounded-md  text-blue-600 px-3 py-2  font-semibold   shadow-sm "
                   >
-                    <span>
+                    <span style={{ fontSize: isMediumScreen ? "" : "24px" }}>
                       <FaUserCircle />
                     </span>
-                    {userDetails.first_name.charAt(0).toUpperCase() +
-                      userDetails.first_name.slice(1)}
-                    <svg
-                      className="-mr-1 h-5 w-5 text-blue-600"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+
+                    <span className="hidden md:items-center md:flex">
+                      {userDetails.first_name.charAt(0).toUpperCase() +
+                        userDetails.first_name.slice(1)}
+                      <svg
+                        className="-mr-1 h-5 w-5 text-blue-600"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </span>
                   </button>
                 </div>
               </>
             ) : (
               <>
-                <button
-                  className="px-4 py-2 g bg-blue-600 flex rounded text-white items-center hover:bg-blue-800"
-                  onClick={handleLogin}
-                >
-                  Login
-                  <HiOutlineLogin className="ml-1 h-5 w-5" />
-                </button>
+                {isMediumScreen ? (
+                  <button
+                    className="px-4 py-2 g bg-blue-600 flex rounded text-white items-center hover:bg-blue-800"
+                    onClick={handleLogin}
+                  >
+                    Login
+                    <HiOutlineLogin className="ml-1 h-5 w-5" />
+                  </button>
+                ) : (
+                  <span
+                    onClick={handleLogin}
+                    style={{ fontSize: "24px" }}
+                    className="text-blue-600"
+                  >
+                    <BiLogIn />
+                  </span>
+                )}
               </>
             )}
 
@@ -367,6 +380,12 @@ export const Header = () => {
                 </div>
               </div>
             )}
+          </div>
+          <div
+            onClick={() => setShowSideBar(true)}
+            className="text-gray-500 md:hidden text-3xl"
+          >
+            <IoMdMenu />
           </div>
         </div>
       </div>

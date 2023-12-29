@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import NavBar from "../../Components/User/NavBar";
 import AxiosUserInstance from "./AxiosUserInstance";
 import Card from "../../Components/User/Card";
 import ImageSlider from "../../Components/User/ImageSlider";
@@ -57,7 +56,7 @@ const Home = () => {
       backgroundPosition: "contain",
     }),
   };
- const [latestProducts, setLatestProducts] = useState([])
+  const [latestProducts, setLatestProducts] = useState([]);
   const [loading, setloading] = useState(true);
   useEffect(() => {
     getProducts();
@@ -83,19 +82,18 @@ const Home = () => {
   const isRowBased = useMediaQuery("(min-width: 768px)");
   return (
     <div className=" bg-white">
-      {/* <NavBar name="home" /> */}
       <Header />
 
-      <div className="w-full relative lg:hidden">
-        <div className="w-full  px-2">
+      <div className="w-full px-4 relative lg:hidden">
+        <div className="w-full   px-">
           <input
             type="text"
             placeholder="Search for Products , Brands and More"
-            className="py-2 px-12 text-gray-400 outline-none bg-blue-100 shadow-sm drop-shadow-sm rounded-lg w-[100%]"
+            className="py-2 px-8 text-gray-400 outline-none bg-blue-100 shadow-sm drop-shadow-sm rounded-lg w-[100%]"
             name=""
             id=""
           />
-          <span className="absolute z-10 top-3 text-lg px-4 text-gray-400 left-0">
+          <span className="absolute z-10 top-3 text-lg px-2 text-gray-400 left-4">
             <FaSearch />
           </span>
         </div>
@@ -110,9 +108,9 @@ const Home = () => {
 
           <div
             style={{
-              height: isRowBased ? "50vh" : "35vh",
+              height: isRowBased ? "50vh" : "26vh",
               display: "flex",
-              padding: "0px 36px",
+              padding: "0px 0px",
             }}
           >
             <div style={styles.container(isRowBased)}>
@@ -134,9 +132,9 @@ const Home = () => {
           </div>
           <div
             style={{ width: isRowBased ? "85%" : "90%", margin: "10px auto" }}
-            className="flex flex-col bg-white"
+            className="flex flex-col  bg-white pb-4"
           >
-            <div className="md:px-5 px-8 flex  justify-between w-full mb-4  text-center pt-8 font-bold">
+            <div className="md:px-5 md:mt-4  px- flex  justify-between w-full mb-4  text-center  mt-16 font-bold">
               <div className="uppercase text-blue-600 hover:text-blue-800 text-lg font-extrabold">
                 <h2> Latest 5g mobiles</h2>
               </div>
@@ -158,7 +156,7 @@ const Home = () => {
               <Card products={latestProducts} isRowBased={isRowBased} />
             </div>
           </div>
-          <div className="py-20  dark:bg-black">
+          <div className="md:py-20 py-4 dark:bg-black">
             <Footer />
           </div>
         </>

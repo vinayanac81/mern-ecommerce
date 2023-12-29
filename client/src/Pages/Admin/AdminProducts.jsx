@@ -137,7 +137,7 @@ const AdminProducts = () => {
             </>
           )}
           <div className="h-full flex flex-col ml-14 mt-14 mb-10 md:ml-64">
-            <div className="mt-10 mb-2 flex justify-end w-full px-10">
+            <div className="mt-6 mb-2 flex justify-end w-full px-10">
               <Link to={"/admin/add-product"}>
                 {" "}
                 <button className="bg-green-500  hover:bg-green-600 items-center flex gap-2 py-2 px-4 rounded">
@@ -194,14 +194,14 @@ const AdminProducts = () => {
                   <table className="w-full">
                     <thead>
                       <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
-                        <th className="px-4 py-3">Product</th>
-                        <th className="px-4 py-3">Image</th>
-                        <th className="px-4 py-3">Description</th>
-                        <th className="px-4 py-3">Category</th>
-                        <th className="px-4 py-3">Barand Name</th>
-                        <th className="px-4 py-3">Price</th>
-                        <th className="px-4 py-3">Stock</th>
-                        <th className="px-4 text-center py-3">Option</th>
+                        <th className="px-4 py-3 text-center">Product</th>
+                        <th className="px-4 py-3 text-center">Image</th>
+                        <th className="px-4 py-3 text-center">Brand</th>
+                        <th className="px-4 py-3 text-center">Price</th>
+                        <th className="px-4 py-3 text-center">Stock</th>
+                        <th className="px-4 text-center py-3">Modify</th>
+                        <th className="px-4 text-center py-3">Status</th>{" "}
+                        <th className="px-4 text-center py-3">Explore</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
@@ -215,7 +215,6 @@ const AdminProducts = () => {
                                     <p className="font-semibold">
                                       {product.product_name}
                                     </p>
-                                    {/* <p className="text-xs text-gray-600 dark:text-gray-400">10x Developer</p> */}
                                   </div>
                                 </div>
                               </td>
@@ -236,31 +235,27 @@ const AdminProducts = () => {
                                   />
                                 </div>
                               </td>
-                              <td className="px-4 py-3 text-xs">
-                                <span className="px-2 py-1 font-semibold leading-tight ">
+                              <td className="px-4 py-3 text-xs text-center">
+                                <span className="px-2 py-1 uppercase  font-semibold leading-tight ">
                                   {" "}
-                                  {product?.description}{" "}
+                                  {product?.brand}{" "}
                                 </span>
                               </td>
-                              <td className="px-4 py-3 text-sm">
-                                {product?.category}
+                              <td className="px-4 py-3 text-center text-sm">
+                                {product?.offer_price}
                               </td>
-                              <td className="px-4 py-3 text-sm">
-                                {product?.sub_category}
-                              </td>
-                              <td className="px-4 py-3 text-sm">
-                                {product?.price}
-                              </td>
-                              <td className="px-4 py-3 text-sm">
+                              <td className="px-4 py-3 text-center text-sm">
                                 {product?.stock}
                               </td>
-                              <td className="px-4 py-3 flex h-28 flex-col md:flex-row justify-center items-center   md:flex gap-2 text-sm">
+                              <td className="px-4 py-3 text-center text-sm">
                                 <button
                                   onClick={() => handleNavigate(product?._id)}
                                   className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-800"
                                 >
                                   Edit
                                 </button>
+                              </td>
+                              <td className="px-4 py-3 text-center text-sm">
                                 {product?.disable ? (
                                   <>
                                     <button
@@ -284,7 +279,8 @@ const AdminProducts = () => {
                                     </button>
                                   </>
                                 )}
-
+                              </td>
+                              <td className="px-4 py-3 text-center text-sm">
                                 <button
                                   onClick={() =>
                                     handleViewProduct(product?._id)

@@ -53,8 +53,11 @@ export const SideBar = ({ hide }) => {
     hide();
   };
   return (
-    <>
-      <div className="absolute h-screen left-0 w-[80%] top-0 bg-white z-20">
+    <div
+      onClick={handleShow}
+      className="w-full left-0 bg-opacity-70 z-20 absolute bg-black"
+    >
+      <div className=" h-screen left-0 w-[80%] top-0 bg-white z-">
         <div className="flex bg-blue-500 justify-between py-4 px-4">
           <div className="flex  gap-4 items-center text-white font-bold uppercase">
             <span className="text-white">
@@ -93,6 +96,6 @@ export const SideBar = ({ hide }) => {
           })}
         </div>
       </div>
-    </>
+    </div>
   );
 };
