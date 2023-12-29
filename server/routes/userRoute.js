@@ -79,7 +79,7 @@ router.post("/addAddress", userAuth, addAddress);
 router.post("/applyCoupon", userAuth, applyCoupon);
 router.get("/getCoupons",getCoupons)
 router.post("/addReviewAndRating",userAuth,addReviewRating)
-router.get("/getReviewrating",userAuth,getReviewrating)
+router.get("/getReviewrating",getReviewrating)
 router.get("/getOrders", userAuth, getBookingList);
 router.get("/get-booked-detail", userAuth, getBookedDetail);
 router.get("/get-all-products", getAllProducts);
