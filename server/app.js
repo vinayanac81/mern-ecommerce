@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: false }));
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "public")));
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors([{ origin: "http://localhost:5173" },{ origin: "https://fivegworldd.onrender.com"}]));
 // app.use(cors({ origin: "https://ecommerce-frong.onrender.com" }));
 // Add headers before the routes are defined
 // app.use(function (req, res, next) {
