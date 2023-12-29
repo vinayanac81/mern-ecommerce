@@ -156,7 +156,7 @@ const Home = () => {
               <Card products={latestProducts} isRowBased={isRowBased} />
             </div>
           </div>
-          <div className="md:py-20 py-4 dark:bg-black">
+          <div className="">
             <Footer />
           </div>
         </>
