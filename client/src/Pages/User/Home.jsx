@@ -81,7 +81,7 @@ const Home = () => {
   };
   const isRowBased = useMediaQuery("(min-width: 768px)");
   return (
-    <div className=" bg-white">
+    <div className="  ">
       <Header />
 
       <div className="w-full px-4 relative lg:hidden">
@@ -149,14 +149,14 @@ const Home = () => {
               style={{
                 width: isRowBased ? "" : "90%",
                 margin: "0px auto",
-                padding: "0px 10px",
+                padding: "8px 10px",
               }}
-              className="  flex gap- justify-center md:justify-between "
+              className="flex gap- justify-center md:justify-between "
             >
               <Card products={latestProducts} isRowBased={isRowBased} />
             </div>
           </div>
-          <div className="">
+          <div className="md:block hidden">
             <Footer />
           </div>
         </>

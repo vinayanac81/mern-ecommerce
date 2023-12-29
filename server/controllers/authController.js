@@ -3,8 +3,6 @@ import adminModel from "../model/adminModel.js";
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
-import axios from "axios";
-import twilio from "twilio";
 import userModel from "../model/userModel.js";
 import cartModel from "../model/cartModel.js";
 import { OAuth2Client } from "google-auth-library";
