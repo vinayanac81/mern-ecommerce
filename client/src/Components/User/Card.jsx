@@ -7,7 +7,6 @@ import AxiosUserInstance from "../../Pages/User/AxiosUserInstance";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { setUserCart } from "../../Toolkit/UserSlice";
-import g from "../../assets/5g.png";
 const Card = ({ products, isRowBased }) => {
   console.log(products);
   const [currentIndex, setcurrentIndex] = useState(0);
