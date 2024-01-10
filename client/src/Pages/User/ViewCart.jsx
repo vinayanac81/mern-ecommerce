@@ -142,7 +142,7 @@ export const ViewCart = () => {
   return (
     <div>
       <Header />
-      <div className="bg-gray-300 pt-6 h-screen px-40">
+      <div className="bg-gray-300 pt-6 h-screen px-40 p">
         <div className="gap-3 flex">
           {cartProductsData.length > 0 && (
             <>
