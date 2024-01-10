@@ -11,6 +11,7 @@ import {
   cancelOrder,
   deleteBrand,
   deleteCategory,
+  deleteLatestMobile,
   deleteProduct,
   deliveredOrder,
   editBrand,
@@ -83,4 +84,5 @@ router.get("/get-category-and-brand",adminAuth,getCategoryAndBrand)
 router.get("/get-order-details",adminAuth,getOrderDetails)
 router.get("/latest5GMobiles",adminAuth,getLatest5GMobiles)
 router.post("/addToLastestMobiles",adminAuth,addToLatestMobiles)
+router.post("/deleteLatestMobile",adminAuth,deleteLatestMobile)
 export default router;

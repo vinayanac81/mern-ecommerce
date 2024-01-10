@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Button, Checkbox, Label, TextInput } from "flowbite-react";
 import { Link, useNavigate } from "react-router-dom";
 import AxiosUserInstance from "./AxiosUserInstance";
 import { GoogleLogin } from "@react-oauth/google";
+import logo from "../../assets/5G.png";
 import { gapi } from "gapi-script";
 import toast from "react-hot-toast";
 import { setUserCart, setUserDetails } from "../../Toolkit/UserSlice";

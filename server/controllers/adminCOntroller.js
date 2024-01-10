@@ -803,7 +803,9 @@ export const getOrderDetails = async (req, res) => {
 };
 export const getLatest5GMobiles = async (req, res) => {
   try {
-    const allProducts = await productModel.find({}).sort({ date: -1 });
+    const allProducts = await productModel
+      .find({ latestFiveGMobiles: false })
+      .sort({ date: -1 });
     const latest = await latest5GModel.aggregate([
       {
         $lookup: {
@@ -832,7 +834,26 @@ export const addToLatestMobiles = async (req, res) => {
     await latest5GModel.create({
       product_id: id,
     });
+    await productModel.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: { latestFiveGMobiles: true } }
+    );
     res.status(201).json({ success: true, message: "Added Successfully" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const deleteLatestMobile = async (req, res) => {
+  try {
+    const { _id, productId } = req.body.deleteProductDetails;
+    await latest5GModel.deleteOne({
+      product_id: new ObjectId(productId),
+    });
+    await productModel.findOneAndUpdate(
+      { _id: new ObjectId(productId) },
+      { $set: { latestFiveGMobiles: false } }
+    );
+    res.status(201).json({ success: true, message: "Removed Successfully!" });
   } catch (error) {
     console.log(error);
   }

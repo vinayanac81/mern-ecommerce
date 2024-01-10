@@ -35,6 +35,8 @@ import { Wishlist } from "./Pages/User/Wishlist";
 import { CheckoutMultie } from "./Pages/User/CheckoutMultie";
 import { UserOrders } from "./Pages/User/Orders";
 import { OrderView } from "./Pages/User/OrderViewPage";
+import { SearchResult } from "./Pages/User/SearchResult";
+import { LatestFiveGMobiles } from "./Pages/User/LatestFiveGMobiles";
 function App() {
   return (
     <>
@@ -44,7 +46,9 @@ function App() {
           {/* User Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/mobiles/:brand" element={<BrandedMobiles />} />
+          <Route path="/mobiles/searchResult/:id" element={<SearchResult/>} />
           <Route path="/mobile/:name/:id" element={<ViewMobile />} />
+          <Route path="/latest-5g-mobiles" element={<LatestFiveGMobiles/>} />
           <Route element={<UserLoginAuth />}>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />

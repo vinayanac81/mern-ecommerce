@@ -19,10 +19,10 @@ const Checkout = () => {
   const [addressSelected, setaddressSelected] = useState(0);
   const [totalPrice, settotalPrice] = useState(0);
   const [discount, setdiscount] = useState(0);
-  const [changeAddress, setchangeAddress] = useState(false);
+  const [changeAddress, setchangeAddress] = useState(true);
   const [radioButtonSelected, setradioButtonSelected] =
     useState(addressSelected);
-  const [showOrderSummery, setshowOrderSummery] = useState(true);
+  const [showOrderSummery, setshowOrderSummery] = useState(false);
   const [product, setproduct] = useState({});
   const [paymentOptions, setpaymentOptions] = useState(false);
   const [paymentDetails, setpaymentDetails] = useState({
@@ -251,7 +251,7 @@ const Checkout = () => {
     <div>
       <Header />
       <div
-        style={{ backgroundColor: "#f0f0f0" }}
+        style={{ backgroundColor: "#f1f3f6" }}
         className=" pt-6 px-5 pb-10  md:px-40"
       >
         <div className="gap-5 flex">
@@ -259,38 +259,36 @@ const Checkout = () => {
             {/* Login */}
             <div
               style={{
-                boxShadow:
-                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+                boxShadow: " rgba(0, 0, 0, 0.1) 0px 10px 50px",
               }}
               className="w-full px-10 py-4 bg-white h-20"
             >
               <div className="">
                 <div className="flex items-center gap-3">
-                  <h2 className="bg-gray-300 w-5 rounded-sm text-blue-600 text-center">
+                  <h2 className="bg-gray-200 w-5 rounded-sm text-blue-600 text-center">
                     1
                   </h2>
-                  <h2 className="uppercase text-gray-400 font-semibold ">
+                  <h2 style={{color:"gray"}} className="uppercase font-semibold ">
                     Login
                   </h2>
                   <span className="text-blue-600 ">
                     <IoMdCheckmark />
                   </span>
                 </div>
-                <div className="flex px-8 gap-5 items-center mt-1 font-semibol text-slate-600">
-                  <h2>
+                <div className="flex px-8 gap-5 items-center mt-1 font-semibold">
+                  <h2 style={{ fontSize: "17px",color:"black" }}>
                     {userDetails.first_name.charAt(0).toUpperCase() +
                       userDetails.first_name.slice(1)}{" "}
                     {userDetails.last_name}
                   </h2>
-                  <h2>{userDetails.email}</h2>
+                  <h2 style={{ fontSize: "17px",color:"black"  }}>{userDetails.email}</h2>
                 </div>
               </div>
             </div>
             {/* Address */}
             <div
               style={{
-                boxShadow:
-                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+                boxShadow: " rgba(0, 0, 0, 0.1) 0px 10px 50px",
               }}
               className="w-full  bg-white "
             >
@@ -301,7 +299,7 @@ const Checkout = () => {
                       <h2 className="bg-white w-5 rounded-sm text-blue-600 text-center">
                         2
                       </h2>
-                      <h2 className="uppercase text-white font-semibold ">
+                      <h2 style={{color:"white"}} className="uppercase  font-semibold ">
                         Delivery Address
                       </h2>
                     </div>
@@ -350,7 +348,13 @@ const Checkout = () => {
                               <>
                                 {" "}
                                 <div className="px-7 mt-3 font-semibold">
-                                  <button className="bg-orange-500 uppercase text-white px-10 py-2 rounded-sm">
+                                  <button
+                                    onClick={() => {
+                                      setchangeAddress(false);
+                                      setshowOrderSummery(true);
+                                    }}
+                                    className="bg-orange-500 uppercase text-white px-10 py-2 rounded-sm"
+                                  >
                                     Deliver here
                                   </button>
                                 </div>
@@ -373,10 +377,10 @@ const Checkout = () => {
                 <div className="pb-4">
                   <div className="flex px-10 pt-4 justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <h2 className="bg-gray-300 w-5 rounded-sm text-blue-600 text-center">
+                      <h2 className="bg-gray-200 w-5 rounded-sm text-blue-600 text-center">
                         2
                       </h2>
-                      <h2 className="uppercase  text-gray-400 font-semibold ">
+                      <h2 style={{color:"gray"}} className="uppercase  text-gray-300 font-semibold ">
                         Delivery Address
                       </h2>
                       <span className="text-blue-600 ">
@@ -421,8 +425,7 @@ const Checkout = () => {
             {/* ORDER SUMMERY */}
             <div
               style={{
-                boxShadow:
-                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+                boxShadow: " rgba(0, 0, 0, 0.1) 0px 10px 50px",
               }}
             >
               <div
@@ -542,12 +545,15 @@ const Checkout = () => {
                             % Off
                           </span>
                         </div>
-                        <div className="flex   bg-blac">
+                        <div className="py-7">
                           <button
                             onClick={() =>
                               removeFromCart(product?.product?._id)
                             }
-                            className="uppercase font-bold pt-9"
+                            style={{
+                              backgroundColor: "red",
+                            }}
+                            className="uppercase px-4 py-2   text-white font-bold "
                           >
                             Remove
                           </button>
@@ -569,7 +575,8 @@ const Checkout = () => {
                         setshowOrderSummery(false);
                         setpaymentOptions(true);
                       }}
-                      className="uppercase  bg-orange-500 px-14 py-2 text-white"
+                      style={{backgroundColor:"orangered"}}
+                      className="uppercase   px-14 py-2 text-white"
                     >
                       CONTInue
                     </button>
@@ -580,8 +587,7 @@ const Checkout = () => {
             {/* PAYMENT OPTIONS */}
             <div
               style={{
-                boxShadow:
-                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+                boxShadow: " rgba(0, 0, 0, 0.1) 0px 10px 50px",
               }}
             >
               <div
@@ -677,8 +683,7 @@ const Checkout = () => {
           <div className="w-[30%] h-80 bg-whit flex flex-col gap-5">
             <div
               style={{
-                boxShadow:
-                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+                boxShadow: " rgba(0, 0, 0, 0.1) 0px 10px 50px",
               }}
               className=" bg-white h-64  "
             >
@@ -738,8 +743,7 @@ const Checkout = () => {
 
             <div
               style={{
-                boxShadow:
-                  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+                boxShadow: " rgba(0, 0, 0, 0.1) 0px 10px 50px",
               }}
               className="mt-   bg-white"
             >

@@ -1,7 +1,11 @@
-export const Loader = () => {
+export const Loader = ({ value }) => {
   return (
     <>
-      <div className="w-full  h-screen flex justify-center items-center">
+      <div
+        className={`w-full ${
+          value === "Latest5gMobiles" ? "h-[36rem]" : "h-screen"
+        }  flex justify-center items-center`}
+      >
         <div role="status">
           <svg
             aria-hidden="true"

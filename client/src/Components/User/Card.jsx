@@ -7,6 +7,7 @@ import AxiosUserInstance from "../../Pages/User/AxiosUserInstance";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { setUserCart } from "../../Toolkit/UserSlice";
+import g from "../../assets/5g.png";
 const Card = ({ products, isRowBased }) => {
   console.log(products);
   const [currentIndex, setcurrentIndex] = useState(0);
@@ -59,40 +60,47 @@ const Card = ({ products, isRowBased }) => {
     setcurrentIndex(newIndex);
   };
   return (
-    <div className="flex gap-10">
+    <div className="flex   gap-10">
       {isRowBased ? (
         <>
           {products.map((product, index) => {
-            return (
-              <div key={index}>
-                <div className="max-w-md cursor-pointer mb-6 w-[17rem] h-[16rem] bg-white border border-gray-400 rounded-lg shadow">
-                  <div className="w-full h-[10rem]">
-                    {" "}
-                    <a href="">
-                      <img
-                        className="rounded-t-lg h-full p-4  w-full"
-                        src={`${BaseUrl}/images/${product?.product?.image}`}
-                        alt=""
-                      />
-                    </a>
-                  </div>
-                  <div className="px-5 py-1">
-                    <a href="">
-                      <h5 className="mb-1  uppercase font-bold tracking-tight text-gray-900 ">
+            if (index < 4) {
+              return (
+                <div key={index}>
+                  <div
+                    style={{
+                      boxShadow:
+                        " rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px",
+                    }}
+                    onClick={() =>
+                      navigate(
+                        `/mobile/${product?.product?.product_name}/${product?.product?._id}`
+                      )
+                    }
+                    className="max-w-md cursor-pointer  py-4  w-[17rem]  bg-white  rounded-lg "
+                  >
+                    <div className="w-full h-[12rem]">
+                      {" "}
+                      <a href="">
+                        <img
+                          className="rounded-t-lg h-full px-4 py-1   w-full"
+                          src={`${BaseUrl}/images/${product?.product?.image}`}
+                          alt=""
+                        />
+                      </a>
+                    </div>
+                    <div className="px-5">
+                      <h5
+                        style={{ fontSize: "16px", fontWeight: "bold" }}
+                        className=" uppercase pt-2 font- tracking-tight text-center text-gray-900 "
+                      >
                         {product?.product?.product_name}
                       </h5>
-                    </a>
-                    <p className="mb-1 text-sm font-normal uppercase text-gray-400 ">
-                      Price : {product?.product?.offer_price}{" "}
-                    </p>
-                    <p className="mb-1 text-sm font-normal uppercase text-gray-400 ">
-                      Stock: {product?.product?.stock}{" "}
-                      <span className="lowercase">Pieces</span>
-                    </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
+              );
+            }
           })}
         </>
       ) : (

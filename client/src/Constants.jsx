@@ -18,14 +18,3 @@ AxiosInstance.interceptors.request.use(function (config) {
   return config;
 });
 export default AxiosInstance;
-
-// export const AxiosUserInstance = axios.create({
-//   baseURL: "http://localhost:1009",
-// });
-
-// AxiosUserInstance.interceptors.request.use(function (config) {
-//   const token = localStorage.getItem("token");
-//   config.headers["Authorization"] = `Bearer ${token}`;
-//   config.headers["Access-control-Allow-Origin"] = "*";
-//   return config;
-// });

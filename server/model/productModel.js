@@ -12,6 +12,7 @@ const productSchema = mongoose.Schema({
   },
   rating: {
     type: Number,
+    default: 5,
   },
   totalReviewRating: {
     type: Number,
@@ -30,6 +31,10 @@ const productSchema = mongoose.Schema({
   },
   disable: {
     type: Boolean,
+  },
+  latestFiveGMobiles: {
+    type: Boolean,
+    default: false,
   },
   date: {
     type: Date,

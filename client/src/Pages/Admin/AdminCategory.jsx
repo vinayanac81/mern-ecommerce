@@ -14,7 +14,10 @@ const AdminCategory = () => {
   const [loading, setloading] = useState(true);
   const [showAddLatest5G, setShowAddLatest5G] = useState(false);
   const [deletePopup, setdeletePopup] = useState(false);
-  const [categoryId, setcategoryId] = useState("");
+  const [deleteProductDetails, setdeleteProductDetails] = useState({
+    productId: "",
+    _id: "",
+  });
   const [latestMobiles, setLatestMobiles] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   useEffect(() => {
@@ -34,25 +37,24 @@ const AdminCategory = () => {
       console.log(error);
     }
   };
-  const handleDelete = (id) => {
-    setcategoryId(id);
+  const handleDelete = (id, productId) => {
+    console.log(productId, id);
+    setdeleteProductDetails({
+      ...deleteProductDetails,
+      productId: productId,
+      _id: id,
+    });
     setdeletePopup(true);
   };
-  const confirmDelete = async (req, res) => {
+  const confirmDelete = async () => {
     try {
-      const { data } = await AxiosInstance.post(
-        "/admin/delete-category",
-        {},
-        { params: { id: categoryId } }
-      );
+      const { data } = await AxiosInstance.post("/admin/deleteLatestMobile", {
+        deleteProductDetails,
+      });
       if (data.success) {
         toast.success(data.message);
-        window.location.reload();
-      } else if (data.noToken || data.tokenExp) {
-        toast.error(data.message);
-        localStorage.removeItem("admin");
-        localStorage.removeItem("admin-token");
-        navigate("/admin");
+        getLatest5GMobiles();
+        setdeletePopup(false)
       }
     } catch (error) {
       console.log(error);
@@ -63,10 +65,10 @@ const AdminCategory = () => {
       const { data } = await AxiosInstance.post("/admin/addToLastestMobiles", {
         id,
       });
-      if(data?.success){
-        setShowAddLatest5G(false)
-        getLatest5GMobiles()
-        toast.success("Added successfully")
+      if (data?.success) {
+        setShowAddLatest5G(false);
+        getLatest5GMobiles();
+        toast.success("Added successfully");
       }
     } catch (error) {
       console.log(error);
@@ -121,9 +123,9 @@ const AdminCategory = () => {
                   <table className="w-full">
                     <thead>
                       <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
-                        <th className="px-4 py-3">Sl No</th>
-                        <th className="px-4 py-3">Mobile Name</th>
-                        <th className="px-4 py-3">Image</th>
+                        <th className="px-4 text-center py-3">Sl No</th>
+                        <th className="px-4 text-center py-3">Mobile Name</th>
+                        <th className="px-4 text-center py-3">Image</th>
                         <th className="px-4 text-center py-3">Option</th>
                       </tr>
                     </thead>
@@ -142,10 +144,16 @@ const AdminCategory = () => {
                                 <table className="w-full">
                                   <thead>
                                     <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
-                                      <th className="px-4 py-3">Sl No</th>
-                                      <th className="px-4 py-3">Mobile Name</th>
-                                      <th className="px-4 py-3">Image</th>
                                       <th className="px-4 text-center py-3">
+                                        Sl No
+                                      </th>
+                                      <th className="px-4 text-center py-3">
+                                        Mobile Name
+                                      </th>
+                                      <th className="px-4 text-center  py-3">
+                                        Image
+                                      </th>
+                                      <th className="px-4 text-center  py-3">
                                         Option
                                       </th>
                                     </tr>
@@ -153,44 +161,52 @@ const AdminCategory = () => {
 
                                   <tbody className="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
                                     {allProducts.map((product, id) => {
-                                        return (
-                                          <>
-                                            <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
-                                              <td className="px-4  py-3">
-                                                <div className="flex items-center text-sm">
-                                                  <div>
-                                                    <p className="font-semibold">
-                                                      {id + 1}
-                                                    </p>
+                                      product?.latestFiveGMobiles === false && (
+                                        <></>
+                                      );
+                                      return (
+                                        <>
+                                          {product?.latestFiveGMobiles ===
+                                            false && (
+                                            <>
+                                              <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
+                                                <td className="px-4  py-3">
+                                                  <div className="flex items-center text-sm">
+                                                    <div>
+                                                      <p className="font-semibold">
+                                                        {id + 1}
+                                                      </p>
+                                                    </div>
                                                   </div>
-                                                </div>
-                                              </td>
-                                              <td className="px-4 py-3 text-sm">
-                                                {product?.product_name}
-                                              </td>
-                                              <td className="px-4 py-3 text-sm">
-                                                <div className="w-20 h-20 py-2">
-                                                  <img
-                                                    src={`${BaseUrl}/images/${product?.image}`}
-                                                    className="w-full h-full"
-                                                    alt=""
-                                                  />
-                                                </div>
-                                              </td>
-                                              <td className="px-4 py-3 justify-center flex gap-4 text-xs">
-                                                <Button
-                                                  onClick={() =>
-                                                    addToLatest(product?._id)
-                                                  }
-                                                  color="blue"
-                                                  type="submit"
-                                                >
-                                                  Add
-                                                </Button>
-                                              </td>
-                                            </tr>
-                                          </>
-                                        )
+                                                </td>
+                                                <td className="px-4 py-3 text-sm">
+                                                  {product?.product_name}
+                                                </td>
+                                                <td className="px-4 py-3 text-sm">
+                                                  <div className="w-20 h-20 py-2">
+                                                    <img
+                                                      src={`${BaseUrl}/images/${product?.image}`}
+                                                      className="w-full h-full"
+                                                      alt=""
+                                                    />
+                                                  </div>
+                                                </td>
+                                                <td className="px-4 py-3 justify-center flex gap-4 text-xs">
+                                                  <Button
+                                                    onClick={() =>
+                                                      addToLatest(product?._id)
+                                                    }
+                                                    color="blue"
+                                                    type="submit"
+                                                  >
+                                                    Add
+                                                  </Button>
+                                                </td>
+                                              </tr>
+                                            </>
+                                          )}
+                                        </>
+                                      );
                                     })}
                                   </tbody>
                                 </table>
@@ -231,23 +247,15 @@ const AdminCategory = () => {
                     </div>
                     <tbody className="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
                       {latestMobiles?.length === 0 ? (
-                        <>
-                          <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
-                            <td className="px-4  py-3"></td>
-                            <td className="px-4 text-center py-3 text-sm">
-                              No Latest Mobiles
-                            </td>
-                            <td className="px-4 py-3 justify-center flex gap-4 text-xs"></td>
-                          </tr>
-                        </>
+                        <></>
                       ) : (
                         <>
                           {latestMobiles.map((mobile, id) => {
                             return (
                               <>
-                                <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
+                                <tr className="bg-gray-50  dark:bg-gray-800  dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
                                   <td className="px-4  py-3">
-                                    <div className="flex items-center text-sm">
+                                    <div className="flex items-center justify-center text-sm">
                                       <div>
                                         <p className="font-semibold">
                                           {id + 1}
@@ -255,10 +263,10 @@ const AdminCategory = () => {
                                       </div>
                                     </div>
                                   </td>
-                                  <td className="px-4 py-3 text-sm">
+                                  <td className="px-4 py-3 text-center text-sm">
                                     {mobile?.product?.product_name}
                                   </td>
-                                  <td className="px-4 py-3 text-sm">
+                                  <td className="px-4 py-3 flex justify-center text-sm">
                                     <div className="w-20 h-20 py-2">
                                       <img
                                         src={`${BaseUrl}/images/${mobile?.product?.image}`}
@@ -267,14 +275,21 @@ const AdminCategory = () => {
                                       />
                                     </div>
                                   </td>
-                                  <td className="px-4 py-3 justify-center flex gap-4 text-xs">
-                                    <Button
-                                      onClick={() => handleDelete(mobile?._id)}
-                                      color="red"
-                                      type="submit"
-                                    >
-                                      Remove
-                                    </Button>
+                                  <td className="px-4  py-3">
+                                    <div className="flex items-center justify-center text-sm">
+                                      <Button
+                                        onClick={() =>
+                                          handleDelete(
+                                            mobile?._id,
+                                            mobile?.product?._id
+                                          )
+                                        }
+                                        color="red"
+                                        type="submit"
+                                      >
+                                        Remove
+                                      </Button>
+                                    </div>
                                   </td>
                                 </tr>
                               </>

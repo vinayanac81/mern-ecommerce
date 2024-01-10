@@ -6,7 +6,7 @@ import G from "../../assets/5G.png";
 import { useDispatch, useSelector } from "react-redux";
 import { FaUserCircle } from "react-icons/fa";
 import { HiOutlineLogin } from "react-icons/hi";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { setUserCart, setUserDetails } from "../../Toolkit/UserSlice";
 import { FaSearch } from "react-icons/fa";
@@ -19,9 +19,10 @@ import { FaMobile } from "react-icons/fa";
 import AxiosUserInstance from "../../Pages/User/AxiosUserInstance";
 import { useMediaQuery } from "../../Hooks/MediaQuery";
 import { BiLogIn } from "react-icons/bi";
-export const Header = ({closeLeftBar}) => {
+export const Header = ({ closeLeftBar }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const {id}=useParams()
   const isMediumScreen = useMediaQuery("(min-width: 768px)");
   const { userDetails, userCart } = useSelector((state) => state.user);
   const [showMenu, setShowMenu] = useState(false);
@@ -29,7 +30,7 @@ export const Header = ({closeLeftBar}) => {
   const [showSideBar, setShowSideBar] = useState(false);
   const [showMobileBrands, setShowMobileBrands] = useState(false);
   const [brands, setBrands] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(id);
   const [searchResults, setSearchResults] = useState([]);
   useEffect(() => {
     getInitialData();
@@ -97,12 +98,17 @@ export const Header = ({closeLeftBar}) => {
   const handleLogin = () => {
     navigate("/login");
   };
+  const getSearchResult = (event) => {
+    if (event.key === "Enter") {
+      navigate(`/mobiles/searchResult/${searchTerm}`, {
+        state: { searchResults, searchTerm },
+      });
+      location.reload()
+    }
+  };
   return (
     <>
-      <div
-       
-        className="flex relative  justify-between px-8  md:px-48  bg-white h-16 w-full"
-      >
+      <div className="flex relative  justify-between px-8  md:px-48  bg-white h-16 w-full">
         {showSideBar && (
           <>
             <SideBar hide={() => setShowSideBar(false)} />
@@ -122,6 +128,7 @@ export const Header = ({closeLeftBar}) => {
               type="text"
               value={searchTerm}
               onChange={handleSearch}
+              onKeyUp={getSearchResult}
               placeholder="Search for Products , Brands and More"
               className="py-2 px-12 text-gray-400 outline-none border-none bg-blue-100 shadow-sm drop-shadow-sm rounded-lg w-[100%]"
               name=""
