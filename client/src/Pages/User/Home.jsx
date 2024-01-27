@@ -14,8 +14,12 @@ import { FaChevronCircleRight } from "react-icons/fa";
 import { Header } from "../../Components/User/Header";
 import { FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { Loader } from "../../Components/Common/Loading";
+import { FcCustomerSupport } from "react-icons/fc";
+import { MdCancel } from "react-icons/md";
+import { IoSend } from "react-icons/io5";
 const Home = () => {
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const slideImages = [
     {
       url: "https://cdn.grabon.in/gograbon/images/web-images/uploads/1618571140235/mobile-offers.jpg",
@@ -60,6 +64,7 @@ const Home = () => {
   };
   const [latestProducts, setLatestProducts] = useState([]);
   const [loading, setloading] = useState(true);
+  const [chatBox, setchatBox] = useState(false);
   useEffect(() => {
     getProducts();
   }, []);
@@ -83,10 +88,10 @@ const Home = () => {
   };
   const isRowBased = useMediaQuery("(min-width: 768px)");
   return (
-    <div>
+    <div className="relative">
       {/* header */}
       <Header />
-      <div className="w-full px-4 relative lg:hidden">
+      <div className="w-full  px-4 relative lg:hidden">
         <div className="w-full   px-">
           <input
             type="text"
@@ -100,8 +105,9 @@ const Home = () => {
           </span>
         </div>
       </div>
-      {loading === false && (
+      {loading === false ? (
         <>
+         
           <div className="">
             {" "}
             <BrandSelect />
@@ -139,7 +145,10 @@ const Home = () => {
                 <h2> Latest 5g mobiles</h2>
               </div>
               <div className="text-sm  text-blue-600 cursor-pointer hover:text-blue-800">
-                <span onClick={()=>navigate("/latest-5g-mobiles")}  className="text-3xl">
+                <span
+                  onClick={() => navigate("/latest-5g-mobiles")}
+                  className="text-3xl"
+                >
                   <FaChevronCircleRight />
                 </span>
               </div>
@@ -150,7 +159,6 @@ const Home = () => {
                 width: isRowBased ? "" : "90%",
                 // margin: "0px auto",
                 // padding: "8px 10px",
-           
               }}
               className="flex gap- pb-2 justify-center md:justify-center"
             >
@@ -163,9 +171,9 @@ const Home = () => {
             <Footer />
           </div>
         </>
+      ) : (
+        <Loader />
       )}
-
-    
     </div>
   );
 };
