@@ -41,7 +41,15 @@ export const LatestFiveGMobiles = () => {
           <Header />
         </div>
         <div className="bg-white w-full mx-2 my-2">
-          <div className="text-center border-b-2 py-5">
+        
+          {loading ? (
+            <>
+              <Loader value={"Latest5gMobiles"} />
+            </>
+          ) : (
+            <>
+              {" "}
+              <div className="text-center border-b-2 py-5">
             <h2
               style={{
                 fontSize: "22px",
@@ -59,16 +67,9 @@ export const LatestFiveGMobiles = () => {
                 fontSize: "15px",
               }}
             >
-              21 Items
+              {latestProducts.length} Items
             </h2>
           </div>
-          {loading ? (
-            <>
-              <Loader value={"Latest5gMobiles"} />
-            </>
-          ) : (
-            <>
-              {" "}
               <div className="py-6 flex flex-wrap justify-center gap-8 px-14">
                 {latestProducts.map((item, index) => {
                   return (
@@ -91,7 +92,9 @@ export const LatestFiveGMobiles = () => {
                             />
                           </div>
                         </div>
-                        <div className="text-center pb-3">{item?.product?.product_name}</div>
+                        <div className="text-center pb-3">
+                          {item?.product?.product_name}
+                        </div>
                       </div>
                     </div>
                   );
