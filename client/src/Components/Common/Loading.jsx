@@ -2,8 +2,8 @@ export const Loader = ({ value }) => {
   return (
     <>
       <div
-        className={`w-full ${
-          value === "Latest5gMobiles" ? "h-[36rem]" : "h-screen"
+        className={`w-full  ${
+          value === "Latest5gMobilesHome" ? "h-[36rem] " : "h-screen "
         }  flex justify-center items-center`}
       >
         <div role="status">

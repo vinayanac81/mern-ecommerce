@@ -64,7 +64,6 @@ const Home = () => {
   };
   const [latestProducts, setLatestProducts] = useState([]);
   const [loading, setloading] = useState(true);
-  const [chatBox, setchatBox] = useState(false);
   useEffect(() => {
     getProducts();
   }, []);
@@ -105,14 +104,11 @@ const Home = () => {
           </span>
         </div>
       </div>
-      {loading === false ? (
-        <>
-         
-          <div className="">
+      <>
+      <div className="">
             {" "}
             <BrandSelect />
           </div>
-
           <div
             style={{
               height: isRowBased ? "50vh" : "26vh",
@@ -153,8 +149,9 @@ const Home = () => {
                 </span>
               </div>
             </div>
-
-            <div
+            {loading === false ? (
+        <>
+       <div
               style={{
                 width: isRowBased ? "" : "90%",
                 // margin: "0px auto",
@@ -164,16 +161,20 @@ const Home = () => {
             >
               <Card products={latestProducts} isRowBased={isRowBased} />
             </div>
-          </div>
 
-          {/* footer */}
-          <div className="md:block hidden">
-            <Footer />
-          </div>
+     
         </>
       ) : (
-        <Loader />
+        <Loader value="Latest5gMobilesHome" />
       )}
+          
+          </div>
+               {/* footer */}
+               <div className="md:block hidden">
+            <Footer />
+          </div>
+      </>
+     
     </div>
   );
 };

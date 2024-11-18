@@ -8,7 +8,6 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { setUserCart } from "../../Toolkit/UserSlice";
 const Card = ({ products, isRowBased }) => {
-  console.log(products);
   const [currentIndex, setcurrentIndex] = useState(0);
   const dispatch = useDispatch();
   const navigate = useNavigate();

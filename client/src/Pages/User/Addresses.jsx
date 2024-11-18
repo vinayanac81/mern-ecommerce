@@ -14,7 +14,6 @@ export const Addresses = () => {
   const [addAddress, setaddAddress] = useState(false);
   const [addressData, setaddressData] = useState({
     name: "",
-    state: "",
     mobileNumber: "",
     district: "",
     pincode: "",

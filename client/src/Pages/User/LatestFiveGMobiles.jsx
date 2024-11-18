@@ -64,6 +64,8 @@ export const LatestFiveGMobiles = () => {
               style={{
                 fontFamily: "sans-serif",
                 color: "gray",
+
+                
                 fontSize: "15px",
               }}
             >
