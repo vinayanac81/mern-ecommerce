@@ -1,9 +1,9 @@
 import axios from "axios";
 
-export const BaseUrl = "https://mern-ecommerce-i13m.onrender.com";
+export const BaseUrl = "http://localhost:1009";
 export const ReferralBaseUrl = "https://mern-ecommerce-i13m.onrender.com/signup";
 const AxiosInstance = axios.create({
-  baseURL: "https://mern-ecommerce-i13m.onrender.com",
+  baseURL: "http://localhost:1009",
 });
 // export const BaseUrl = "https://fivegworld.onrender.com";
 // export const ReferralBaseUrl = "https://fivegworldd.onrender.com/signup";

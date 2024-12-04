@@ -16,7 +16,7 @@ const Header = () => {
         <div className="flex items-center justify-start md:justify-center pl-3 w-14 md:w-64 h-14 bg-blue-800 dark:bg-gray-800 border-none">
           <img
             className="w-7 h-7 md:w-10 md:h-10 mr-2 rounded-md overflow-hidden"
-            src="https://therminic2018.eu/wp-content/uploads/2018/07/dummy-avatar.jpg"
+            src="https://t4.ftcdn.net/jpg/02/27/45/09/360_F_227450952_KQCMShHPOPebUXklULsKsROk5AvN6H1H.jpg"
           />
           <span className="hidden md:block">ADMIN</span>
         </div>
