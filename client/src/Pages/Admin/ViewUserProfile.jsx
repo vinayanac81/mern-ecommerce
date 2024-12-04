@@ -6,17 +6,17 @@ import { useParams } from "react-router-dom";
 const ViewUserProfile = () => {
   const { id } = useParams();
   const [userData, setuserData] = useState();
-  const [loading, setloading] = useState(true)
+  const [loading, setloading] = useState(true);
   useEffect(() => {
     getUserData();
   }, []);
   const getUserData = async () => {
     try {
-      setloading(true)
+      setloading(true);
       const { data } = await AxiosInstance.get("/admin/view-user", {
         params: { userId: id },
       });
-      setloading(false)
+      setloading(false);
       if (data.success) {
         console.log(data);
         setuserData(data?.user);
@@ -36,7 +36,7 @@ const ViewUserProfile = () => {
                 href="/admin/users"
                 className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
               >
-               Back
+                Back
               </a>
             </Dropdown.Item>
           </Dropdown>
@@ -60,7 +60,7 @@ const ViewUserProfile = () => {
             {userData?.first_name} {userData?.last_name}
           </h5>
           <span className="text-sm text-gray-500 dark:text-gray-400">
-          {userData?.email}
+            {userData?.email}
           </span>
           <div className="mt-4 flex space-x-3 lg:mt-6">
             <a
